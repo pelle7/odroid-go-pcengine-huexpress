@@ -104,3 +104,66 @@ extern bool QuickSaveState(FILE *f);
 odroid_ui_entry *odroid_ui_create_entry(odroid_ui_window *window, odroid_ui_func_update_def func_update, odroid_ui_func_toggle_def func_toggle);
 
 char *odroid_ui_choose_file(const char *path, const char *ext);
+
+void check_boot_cause();
+void DoReboot(bool save);
+void DoStartupPost();
+
+#define ODROID_UI_MENU_HANDLER_INIT_V1(joy) \
+    odroid_ui_debug_enter_loop(); \
+    bool menu_restart = false; \
+    bool ignoreMenuButton = joy.values[ODROID_INPUT_MENU]; \
+    uint16_t menuButtonFrameCount = 0;
+
+#define ODROID_UI_MENU_HANDLER_LOOP_V1(joy_last, joy, CALLBACK_SHUTDOWN, CALLBACK_MENU) \
+        if (ignoreMenuButton) \
+        { \
+            ignoreMenuButton = joy_last.values[ODROID_INPUT_MENU]; \
+        } \
+ \
+        if (!ignoreMenuButton && joy_last.values[ODROID_INPUT_MENU] && joy.values[ODROID_INPUT_MENU]) \
+        { \
+            ++menuButtonFrameCount; \
+        } \
+        else \
+        { \
+            menuButtonFrameCount = 0; \
+        } \
+        if (menuButtonFrameCount > 60 * 1) \
+        { \
+            CALLBACK_SHUTDOWN(true); \
+        } \
+         \
+        if (!ignoreMenuButton && joy_last.values[ODROID_INPUT_MENU] && !joy.values[ODROID_INPUT_MENU]) \
+        { \
+            CALLBACK_SHUTDOWN(false); \
+        } \
+        if ((!last_gamepad.values[ODROID_INPUT_VOLUME] && \
+            gamepad.values[ODROID_INPUT_VOLUME]) || menu_restart) \
+        { \
+            menu_restart = CALLBACK_MENU(menu_restart); \
+        }
+
+#define ODROID_UI_MENU_HANDLER_LOOP_V2(joy_last, joy, CALLBACK_SHUTDOWN) \
+        if (ignoreMenuButton) \
+        { \
+            ignoreMenuButton = joy_last.values[ODROID_INPUT_MENU]; \
+        } \
+ \
+        if (!ignoreMenuButton && joy_last.values[ODROID_INPUT_MENU] && joy.values[ODROID_INPUT_MENU]) \
+        { \
+            ++menuButtonFrameCount; \
+        } \
+        else \
+        { \
+            menuButtonFrameCount = 0; \
+        } \
+        if (menuButtonFrameCount > 60 * 1) \
+        { \
+            CALLBACK_SHUTDOWN(true); \
+        } \
+         \
+        if (!ignoreMenuButton && joy_last.values[ODROID_INPUT_MENU] && !joy.values[ODROID_INPUT_MENU]) \
+        { \
+            CALLBACK_SHUTDOWN(false); \
+        }

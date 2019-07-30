@@ -10,9 +10,7 @@
 #include "driver/rtc_io.h"
 #include "esp_ota_ops.h"
 
-typedef unsigned char uint8;
-typedef unsigned short int uint16;
-typedef unsigned long int uint32;
+#include "pce.h"
 
 /////////
 
@@ -32,6 +30,8 @@ typedef unsigned long int uint32;
 
 #define NOINLINE  __attribute__ ((noinline))
 
+const char* SD_BASE_PATH = "/sd";
+
 
 NOINLINE void app_init(void)
 {
@@ -41,14 +41,23 @@ NOINLINE void app_init(void)
 
     odroid_system_init();
 
+    ili9341_init();
+
     // Joystick.
     odroid_input_gamepad_init();
     odroid_input_battery_level_init();
+
+    //printf("osd_init: ili9341_prepare\n");
     ili9341_prepare();
 
-    ili9341_init();
+    
 
     /////
+    check_boot_cause();
+    
+    char *rom_file = odroid_ui_choose_file("/sd/roms/pce", "pce");
+    
+    InitPCE(rom_file);
 }
 
 NOINLINE void app_loop(void)

@@ -12,6 +12,7 @@
 #include "odroid_input.h"
 #include "odroid_audio.h"
 #include "odroid_debug.h"
+#include "odroid_sdcard.h"
 #include <stdio.h>
 #include <string.h>
 //#include <stdint.h>
@@ -27,6 +28,7 @@ bool MyQuickLoadState();
 bool MyQuickSaveState();
 
 extern bool scaling_enabled;
+bool forceConsoleReset = false;
 extern bool config_ui_stats;
 
 bool config_speedup;
@@ -48,7 +50,7 @@ static void *quicksave_buffer = NULL;
 
 static bool quicksave_done = false;
 
-// const char* SD_TMP_PATH = "/sd/odroid/tmp";
+extern const char* SD_BASE_PATH;
 
 const char* SD_TMP_PATH_SAVE = "/sd/odroid/data/.quicksav.dat";
     
@@ -975,4 +977,190 @@ void update_ui_fps_text(float fps) {
 
 void odroid_ui_stats(uint16_t x, uint16_t y) {
     ili9341_write_frame_rectangleLE(x, y, 5 * 8, 8, framebuffer);
+}
+
+void SaveState()
+{
+    odroid_input_battery_monitor_enabled_set(0);
+    odroid_system_led_set(1);
+
+    char* romPath = odroid_settings_RomFilePath_get();
+    if (romPath)
+    {
+        odroid_display_lock();
+        odroid_display_drain_spi();
+
+        char* fileName = odroid_util_GetFileName(romPath);
+        if (!fileName) abort();
+
+        char* pathName = odroid_sdcard_create_savefile_path(SD_BASE_PATH, fileName);
+        if (!pathName) abort();
+
+        FILE* f = fopen(pathName, "wb");
+        if (f == NULL)
+        {
+            /*
+            char *index = strrchr(pathName, '/');
+            *index = '\0';
+            DIR* dir = opendir(pathName);
+            if (dir)
+            {
+                closedir(dir);
+                printf("%s: fopen save failed: '%s' ; Folder exists\n", __func__, pathName);
+                abort();
+            }
+            if (mkdir(pathName, 01666) != 0)
+            {
+                printf("%s: fopen save failed: '%s' ; Folder doesn't exists. Could not create\n", __func__, pathName);
+                abort();
+            }
+            *index = '/';
+            f = fopen(pathName, "w");
+            if (f == NULL)
+            {
+               printf("%s: fopen save failed: '%s'\n", __func__, pathName);
+               abort();
+            }
+            */
+            printf("%s: fopen save failed: '%s' ; Can't create file.\n", __func__, pathName);
+            abort();
+        }
+        QuickSaveState(f);
+        fclose(f);
+
+        printf("%s: savestate OK.\n", __func__);
+        odroid_display_unlock();
+
+        free(pathName);
+        free(fileName);
+        free(romPath);
+    } else
+    {
+       printf("ERROR!\n");
+    }
+}
+
+void LoadState()
+{
+    char* romName = odroid_settings_RomFilePath_get();
+    if (romName)
+    {
+        odroid_display_lock();
+        odroid_display_drain_spi();
+
+        char* fileName = odroid_util_GetFileName(romName);
+        if (!fileName) abort();
+
+        char* pathName = odroid_sdcard_create_savefile_path(SD_BASE_PATH, fileName);
+        if (!pathName) abort();
+
+        FILE* f = fopen(pathName, "rb");
+        if (f == NULL)
+        {
+            printf("LoadState: fopen load failed\n");
+        }
+        else
+        {
+            QuickLoadState(f);
+            fclose(f);
+
+            printf("LoadState: loadstate OK.\n");
+        }
+        odroid_display_unlock();
+        free(pathName);
+        free(fileName);
+        free(romName);
+    }
+    else
+    {
+      printf("ERROR\n");
+    }
+}
+
+void check_boot_cause()
+{
+    // Boot state overrides
+    
+    switch (esp_sleep_get_wakeup_cause())
+    {
+        case ESP_SLEEP_WAKEUP_EXT0:
+        {
+            printf("app_main: ESP_SLEEP_WAKEUP_EXT0 deep sleep wake\n");
+            break;
+        }
+
+        case ESP_SLEEP_WAKEUP_EXT1:
+        case ESP_SLEEP_WAKEUP_TIMER:
+        case ESP_SLEEP_WAKEUP_TOUCHPAD:
+        case ESP_SLEEP_WAKEUP_ULP:
+        case ESP_SLEEP_WAKEUP_UNDEFINED:
+        {
+            printf("app_main: Non deep sleep startup\n");
+
+            odroid_gamepad_state bootState = odroid_input_read_raw();
+
+            if (bootState.values[ODROID_INPUT_MENU])
+            {
+                // Force return to factory app to recover from
+                // ROM loading crashes
+
+                // Set menu application
+                odroid_system_application_set(0);
+
+                // Reset
+                esp_restart();
+            }
+
+            if (bootState.values[ODROID_INPUT_START])
+            {
+                // Reset emulator if button held at startup to
+                // override save state
+                forceConsoleReset = true;
+            }
+
+            break;
+        }
+        default:
+            printf("app_main: Not a deep sleep reset\n");
+            break;
+    }
+
+    if (odroid_settings_StartAction_get() == ODROID_START_ACTION_RESTART)
+    {
+        forceConsoleReset = true;
+        odroid_settings_StartAction_set(ODROID_START_ACTION_NORMAL);
+    }
+}
+
+void DoReboot(bool save)
+{
+    odroid_gamepad_state joystick;   
+    odroid_input_gamepad_read(&joystick);
+
+    odroid_display_show_hourglass();
+
+    if (save) gpio_set_level(GPIO_NUM_2, 1);
+
+    // state
+    printf("PowerDown: Saving state.\n");
+    if (!joystick.values[ODROID_INPUT_START] && save) {
+       SaveState();
+    }
+    odroid_display_lock();
+    odroid_sdcard_close();
+    odroid_display_unlock();
+
+    gpio_set_level(GPIO_NUM_2, 0);
+    // Set menu application
+    odroid_system_application_set(0);
+    // Reset
+    esp_restart();
+}
+
+void DoStartupPost()
+{
+    if (!forceConsoleReset)
+    {
+        LoadState();
+    }
 }
