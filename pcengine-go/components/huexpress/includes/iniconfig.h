@@ -45,6 +45,6 @@ extern uchar joy_mapping[5][16];
 
 extern int32 smode,vmode;
 
-extern char cdsystem_path[PATH_MAX];
+extern char *cdsystem_path;//[PATH_MAX];
 
 #endif

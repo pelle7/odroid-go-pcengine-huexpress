@@ -1,12 +1,14 @@
+#pragma once
+#include "debug.h"
+#include "sys_dep.h"
+#include "pce.h"
+
 #if 0
 
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
-#include "debug.h"
 
-#include "sys_dep.h"
-#include "pce.h"
 #include "osd_sdl_gfx.h"
 
 

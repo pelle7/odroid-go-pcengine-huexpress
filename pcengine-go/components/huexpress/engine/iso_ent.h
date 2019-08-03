@@ -1,4 +1,6 @@
-uchar ISO_header[0x800] = {
+uchar *ISO_header;
+/*
+[0x800] = {
 
 
 	0X82,
@@ -208,3 +210,4 @@ uchar ISO_header[0x800] = {
 	0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00,
 	0X00, 0X00, 0X00, 0X00, 0X00, 0X00, 0X00
 };
+*/

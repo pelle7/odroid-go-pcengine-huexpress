@@ -669,4 +669,8 @@ void
 read_sector_HCD(uchar * p, uint32 dum)
 {
 }
+void
+HCD_handle_subtitle()
+{
+}
 #endif

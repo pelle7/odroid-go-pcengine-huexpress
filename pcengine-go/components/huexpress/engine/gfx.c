@@ -613,7 +613,7 @@ stop_dump_video()
 
 #elif defined(DUMP_UYVY_MULTI_FILE)
 
-static char video_output_base_filename[PATH_MAX];
+static char *video_output_base_filename;//[PATH_MAX];
 static int video_output_frame_count;
 
 //! Start the video dump process

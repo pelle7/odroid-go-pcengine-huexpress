@@ -23,12 +23,13 @@ static int default_joy_mapping[J_MAX] = {0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1};
 
 //! Filename of the cd system rom
-char cdsystem_path[PATH_MAX];
+char *cdsystem_path;//[PATH_MAX];
 
 char sCfgFileLine[BUFSIZ];
 // line buffer for config reading
 
-char config_file[PATH_MAX], config_file_tmp[PATH_MAX];
+char *config_file;//[PATH_MAX];
+char *config_file_tmp;//[PATH_MAX];
 // name of the config file
 
 const int config_ar_size_max = 2000;

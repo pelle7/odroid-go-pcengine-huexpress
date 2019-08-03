@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "osd_sdl_machine.h"
+#include "myadd.h"
 
 #if 0
 
@@ -140,6 +141,17 @@ osd_readkey(void)
 		}
 	}
 	return 0;
+}
+
+#else
+uchar* osd_gfx_buffer = NULL;
+uchar* XBuf;
+
+int
+osd_init_machine(void)
+{
+    XBuf = (uchar*)my_special_alloc(false, 1, XBUF_WIDTH * XBUF_HEIGHT);
+    osd_gfx_buffer = XBuf + 32 + 64 * XBUF_WIDTH;
 }
 
 #endif

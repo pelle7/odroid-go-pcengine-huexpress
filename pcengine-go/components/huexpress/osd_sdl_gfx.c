@@ -467,4 +467,88 @@ drawVolume(char *name, int volume)
 	osd_gfx_set_message(result);
 }
 
+#else
+
+uint startTime;
+uint stopTime;
+uint totalElapsedTime;
+int frame;
+
+inline void update_ui_fps() {
+    stopTime = xthal_get_ccount();
+    int elapsedTime;
+    if (stopTime > startTime)
+      elapsedTime = (stopTime - startTime);
+    else
+      elapsedTime = ((uint64_t)stopTime + (uint64_t)0xffffffff) - (startTime);
+
+    totalElapsedTime += elapsedTime;
+    ++frame;
+
+    if (frame == 60)
+    {
+      float seconds = totalElapsedTime / (CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ * 1000000.0f);
+      float fps = frame / seconds;
+      printf("FPS:%f\n", fps);
+
+      //printf("HEAP:0x%x, FPS:%f, BATTERY:%d [%d]\n", esp_get_free_heap_size(), fps, battery.millivolts, battery.percentage);
+      
+      //vTaskGetRunTimeStats(pmem);
+      //printf(pmem);
+      
+      frame = 0;
+      totalElapsedTime = 0;
+      /*if (config_ui_stats) {
+        update_ui_fps_text(fps);
+      }*/
+#ifdef ODROID_DEBUG_PERF_USE
+    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_TOTAL, 269334479);
+    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_CPU, 230473555);
+    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_SUSIE_PAINTSPRITES, 144456221);
+    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_SUSIE_PAINTSPRITES_VLOOP, 135921297);
+#endif
+ODROID_DEBUG_PERF_LOG()
+    }
+    startTime = stopTime;
+    // usleep(20*1000UL);
+}
+
+int
+osd_gfx_init(void)
+{
+    printf("%s: \n", __func__);
+    io.screen_w = 352;
+	io.screen_h = 256;
+    startTime = xthal_get_ccount();
+    return true;
+}
+
+int
+osd_gfx_init_normal_mode()
+{
+    printf("%s: \n", __func__);
+    return true;
+}
+
+void
+osd_gfx_put_image_normal(void)
+{
+   // printf("%s: %d\n", __func__, frame);
+   if ((frame%15)==0)
+   {
+    ili9341_write_frame_rectangleLE(0,0,300,240, osd_gfx_buffer-32);
+   }
+   update_ui_fps();
+}
+
+void
+osd_gfx_shut_normal_mode(void)
+{
+   printf("%s: \n", __func__);
+}
+
+osd_gfx_driver osd_gfx_driver_list[1] = {
+    {osd_gfx_init, osd_gfx_init_normal_mode,
+     osd_gfx_put_image_normal, osd_gfx_shut_normal_mode}
+};
 #endif

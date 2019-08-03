@@ -38,7 +38,7 @@ uchar BGONSwitch = 1;
 uchar SPONSwitch = 1;
 // Do we have to draw sprites ?
 
-uint32 spr_init_pos[1024];
+uint32 *spr_init_pos;//[1024];
 // cooked initial position of sprite
 
 void (*RefreshSprite) (int Y1, int Y2, uchar bg);
@@ -49,8 +49,8 @@ int oldScrollY;
 int oldScrollYDiff;
 
 // Actual memory area where the gfx functions are drawing sprites and tiles
-uchar SPM_raw[XBUF_WIDTH * XBUF_HEIGHT];
-static uchar *SPM = SPM_raw + XBUF_WIDTH * 64 + 32;
+uchar *SPM_raw;//[XBUF_WIDTH * XBUF_HEIGHT];
+/*static*/ uchar *SPM;// = SPM_raw + XBUF_WIDTH * 64 + 32;
 
 int frame = 0;
 // number of frame displayed

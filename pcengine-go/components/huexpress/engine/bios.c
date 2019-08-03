@@ -974,7 +974,7 @@ handle_bios()
 				break;
 			case 5:
 				HCD_play_track(bcdbin[get_8bit_zp(_al)],
-							   (char) (get_8bit_zp(_dh) & 1));
+							   (SBYTE) (get_8bit_zp(_dh) & 1));
 				break;
 			}
 		} else if (get_8bit_zp(_bh) == 192) {	/* resume from pause if paused */

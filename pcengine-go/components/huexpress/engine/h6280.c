@@ -178,7 +178,7 @@ pull_16bit(void)
 static uchar
 adc(uchar acc, uchar val)
 {
-	int16 sig = (char) acc;
+	int16 sig = (SBYTE) acc;
 	uint16 usig = (uchar) acc;
 	uint16 temp;
 
@@ -187,7 +187,7 @@ adc(uchar acc, uchar val)
 			usig++;
 			sig++;
 		}
-		sig += (char) val;
+		sig += (SBYTE) val;
 		usig += (uchar) val;
 		acc = (uchar) (usig & 0xFF);
 
@@ -227,7 +227,7 @@ adc(uchar acc, uchar val)
 static void
 sbc(uchar val)
 {
-	int16 sig = (char) reg_a;
+	int16 sig = (SBYTE) reg_a;
 	uint16 usig = (uchar) reg_a;
 	int16 temp;
 
@@ -236,7 +236,7 @@ sbc(uchar val)
 			usig--;
 			sig--;
 		}
-		sig -= (char) val;
+		sig -= (SBYTE) val;
 		usig -= (uchar) val;
 		reg_a = (uchar) (usig & 0xFF);
 		reg_p = (reg_p & ~(FL_N | FL_V | FL_T | FL_Z | FL_C))
@@ -648,7 +648,7 @@ bbr0(void)
 		reg_pc += 3;
 		cycles += 6;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	}
 	return 0;
@@ -662,7 +662,7 @@ bbr1(void)
 		reg_pc += 3;
 		cycles += 6;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	}
 	return 0;
@@ -676,7 +676,7 @@ bbr2(void)
 		reg_pc += 3;
 		cycles += 6;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	}
 	return 0;
@@ -690,7 +690,7 @@ bbr3(void)
 		reg_pc += 3;
 		cycles += 6;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	}
 	return 0;
@@ -704,7 +704,7 @@ bbr4(void)
 		reg_pc += 3;
 		cycles += 6;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	}
 	return 0;
@@ -718,7 +718,7 @@ bbr5(void)
 		reg_pc += 3;
 		cycles += 6;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	}
 	return 0;
@@ -732,7 +732,7 @@ bbr6(void)
 		reg_pc += 3;
 		cycles += 6;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	}
 	return 0;
@@ -746,7 +746,7 @@ bbr7(void)
 		reg_pc += 3;
 		cycles += 6;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	}
 	return 0;
@@ -757,7 +757,7 @@ bbs0(void)
 {
 	reg_p &= ~FL_T;
 	if (zp_operand(reg_pc + 1) & 0x01) {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	} else {
 		reg_pc += 3;
@@ -771,7 +771,7 @@ bbs1(void)
 {
 	reg_p &= ~FL_T;
 	if (zp_operand(reg_pc + 1) & 0x02) {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	} else {
 		reg_pc += 3;
@@ -785,7 +785,7 @@ bbs2(void)
 {
 	reg_p &= ~FL_T;
 	if (zp_operand(reg_pc + 1) & 0x04) {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	} else {
 		reg_pc += 3;
@@ -799,7 +799,7 @@ bbs3(void)
 {
 	reg_p &= ~FL_T;
 	if (zp_operand(reg_pc + 1) & 0x08) {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	} else {
 		reg_pc += 3;
@@ -813,7 +813,7 @@ bbs4(void)
 {
 	reg_p &= ~FL_T;
 	if (zp_operand(reg_pc + 1) & 0x10) {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	} else {
 		reg_pc += 3;
@@ -827,7 +827,7 @@ bbs5(void)
 {
 	reg_p &= ~FL_T;
 	if (zp_operand(reg_pc + 1) & 0x20) {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	} else {
 		reg_pc += 3;
@@ -841,7 +841,7 @@ bbs6(void)
 {
 	reg_p &= ~FL_T;
 	if (zp_operand(reg_pc + 1) & 0x40) {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	} else {
 		reg_pc += 3;
@@ -855,7 +855,7 @@ bbs7(void)
 {
 	reg_p &= ~FL_T;
 	if (zp_operand(reg_pc + 1) & 0x80) {
-		reg_pc += (char) imm_operand(reg_pc + 2) + 3;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 2) + 3;
 		cycles += 8;
 	} else {
 		reg_pc += 3;
@@ -869,10 +869,10 @@ bcc(void)
 {
 	reg_p &= ~FL_T;
 	if (reg_p & FL_C) {
-		reg_pc += 2;
+	    reg_pc += 2;
 		cycles += 2;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 		cycles += 4;
 	}
 	return 0;
@@ -883,7 +883,7 @@ bcs(void)
 {
 	reg_p &= ~FL_T;
 	if (reg_p & FL_C) {
-		reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 		cycles += 4;
 	} else {
 		reg_pc += 2;
@@ -897,7 +897,7 @@ beq(void)
 {
 	reg_p &= ~FL_T;
 	if (reg_p & FL_Z) {
-		reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 		cycles += 4;
 	} else {
 		reg_pc += 2;
@@ -981,7 +981,7 @@ bmi(void)
 {
 	reg_p &= ~FL_T;
 	if (reg_p & FL_N) {
-		reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 		cycles += 4;
 	} else {
 		reg_pc += 2;
@@ -998,7 +998,7 @@ bne(void)
 		reg_pc += 2;
 		cycles += 2;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 		cycles += 4;
 	}
 	return 0;
@@ -1012,7 +1012,7 @@ bpl(void)
 		reg_pc += 2;
 		cycles += 2;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 		cycles += 4;
 	}
 	return 0;
@@ -1022,7 +1022,7 @@ int
 bra(void)
 {
 	reg_p &= ~FL_T;
-	reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+	reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 	cycles += 4;
 	return 0;
 }
@@ -1048,7 +1048,7 @@ bsr(void)
 {
 	reg_p &= ~FL_T;
 	push_16bit(reg_pc + 1);
-	reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+	reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 	cycles += 8;
 	return 0;
 }
@@ -1061,7 +1061,7 @@ bvc(void)
 		reg_pc += 2;
 		cycles += 2;
 	} else {
-		reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 		cycles += 4;
 	}
 	return 0;
@@ -1072,7 +1072,7 @@ bvs(void)
 {
 	reg_p &= ~FL_T;
 	if (reg_p & FL_V) {
-		reg_pc += (char) imm_operand(reg_pc + 1) + 2;
+		reg_pc += (SBYTE) imm_operand(reg_pc + 1) + 2;
 		cycles += 4;
 	} else {
 		reg_pc += 2;
@@ -3541,7 +3541,6 @@ exe_go(void)
 		old_reg_pc = reg_pc;
 #endif
 
-#undef OPCODE_LOGGING
 #if defined(OPCODE_LOGGING)
 #if defined(SDL)
 		extern Uint8 *key;
@@ -3554,12 +3553,14 @@ exe_go(void)
 			Log("zp[%02X] = %02X\n", offset,
 				get_8bit_addr(get_16bit_zp(offset)));
 		}
-		Log("[%04X] (%02X) (%02X,%02X,%02X) (%02X,%02X) {%02X,%04X} {%02X}\n", reg_pc, PageR[reg_pc >> 13][reg_pc], reg_a, reg_x, reg_y, reg_s, reg_p, get_8bit_addr(get_16bit_zp(0)), get_16bit_zp(0), get_8bit_zp(0x48));
+		uint8 rr = PageR[reg_pc >> 13][reg_pc];
+		Log("[%04X] (%02X, %-4s) (%02X,%02X,%02X) (%02X,%02X) {%02X,%04X} {%02X}\n", reg_pc, rr, optable_runtime[rr].opname, reg_a, reg_x, reg_y, reg_s, reg_p, get_8bit_addr(get_16bit_zp(0)), get_16bit_zp(0), get_8bit_zp(0x48));
 #endif
 
 #ifdef USE_INSTR_SWITCH
 #include "instr-switch.c"
 #else
+        // Log("Pc = %04x : %s\n", reg_pc, optable_runtime[PageR[reg_pc>>13][reg_pc]].opname);
 		err = (*optable_runtime[PageR[reg_pc >> 13][reg_pc]].func_exe) ();
 #endif
 

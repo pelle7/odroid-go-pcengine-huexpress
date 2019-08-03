@@ -81,42 +81,42 @@ extern char volatile key_delay;
 extern volatile uint32 message_delay;
 // if different of zero, we must display the message pointed by pmessage
 
-extern char short_cart_name[PATH_MAX];
+extern char *short_cart_name;//[PATH_MAX];
 // Just the filename without the extension (with a dot)
 // you just have to add your own extension...
 
-extern char short_iso_name[PATH_MAX];
+extern char *short_iso_name;//[PATH_MAX];
 // Added for ISO save support
 
-extern char cdsystem_path[PATH_MAX];
+extern char *cdsystem_path;//[PATH_MAX];
 // The path of the cdsystem to launch automaticaly
 
-extern char sav_path[PATH_MAX];
+extern char *sav_path;//[PATH_MAX];
 // The place where to keep saved games
 // currently a subdir a the EXE path named 'SAV'
 
-extern char video_path[PATH_MAX];
+extern char *video_path;//[PATH_MAX];
 // The place where to keep output pictures
 
-extern char ISO_filename[PATH_MAX];
+extern char *ISO_filename;//[PATH_MAX];
 // the name of the ISO file
 
-extern char cart_name[PATH_MAX];
+extern char *cart_name;//[PATH_MAX];
 // the name of the rom to load
 
-extern char initial_path[PATH_MAX];
+extern char *initial_path;//[PATH_MAX];
 // initial path for rom seeking
 
-extern char sav_basepath[PATH_MAX];
+extern char *sav_basepath;//[PATH_MAX];
 // base path for saved games
 
-extern char tmp_basepath[PATH_MAX];
+extern char *tmp_basepath;//[PATH_MAX];
 // base path for temporary operations
 
-extern char log_filename[PATH_MAX];
+extern char *log_filename;//[PATH_MAX];
 // filename of the log
 
-extern char config_basepath[PATH_MAX];
+extern char *config_basepath;//[PATH_MAX];
 // ~/.huexpress/
 
 extern uchar populus;

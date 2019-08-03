@@ -1810,4 +1810,16 @@ wait_internet_digest_status (uchar * local_input)
 
 #endif // ENABLE_NETPLAY
 
+#else
+#include "../odroid/odroid_input.h"
+
+int
+osd_keyboard (void)
+{
+    //printf("%s: \n", __func__);
+    //odroid_gamepad_state joystick;   
+    //odroid_input_gamepad_read(&joystick);
+    //if (!joystick.values[ODROID_INPUT_START]
+    return 0;
+}
 #endif

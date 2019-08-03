@@ -48,6 +48,7 @@
   **/
 
 void hard_init(void);
+void hard_reset_io(void);
 void hard_term(void);
 
 void IO_write(uint16 A, uchar V);

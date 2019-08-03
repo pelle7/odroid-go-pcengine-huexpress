@@ -20,6 +20,7 @@
 #ifndef __CLEANTYPES_H
 #define __CLEANTYPES_H
 
+#include "myadd.h"
 
 /*
  * Set datatype sizes
@@ -129,6 +130,8 @@ typedef int64 intptr;
 
 #endif /* !HAIKU */
 
-#define Sint16 int16_t
+// int16_t
+typedef int16_t Sint16;
+typedef signed char SBYTE;
 
 #endif /* __CLEANTYPES_H */

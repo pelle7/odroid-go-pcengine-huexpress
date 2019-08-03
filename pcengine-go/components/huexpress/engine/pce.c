@@ -116,14 +116,14 @@ int scanlines_per_frame = 263;
 //int MinLine = 0,MaxLine = 255;
 //#define MAXDISP 227
 
-char cart_name[PATH_MAX] = "";
+char *cart_name;//[PATH_MAX] = "";
 // Name of the file containing the ROM
 
-char short_cart_name[PATH_MAX];
+char *short_cart_name;//[PATH_MAX];
 // Just the filename without the extension (with a dot)
 // you just have to add your own extension...
 
-char short_iso_name[PATH_MAX];
+char *short_iso_name;//[PATH_MAX];
 // Just the ISO filename without the extension (with a dot)
 // you just have to add your own extension...
 
@@ -136,26 +136,26 @@ uchar use_eagle = 0;
 uchar use_scanline = 0;
 // use scanline mode ?
 
-char rom_file_name[PATH_MAX];
+char *rom_file_name;//[PATH_MAX];
 // the name of the file containing the ROM (with path, ext)
 // Now needed 'coz of ZIP archiving...
 
-char config_basepath[PATH_MAX];
+char *config_basepath;//[PATH_MAX];
 // base path for all configs (in users home)
 
-char sav_path[PATH_MAX];
+char *sav_path;//[PATH_MAX];
 // The filename for saving games
 
-char sav_basepath[PATH_MAX];
+char *sav_basepath;//[PATH_MAX];
 // base path for saved games
 
-char tmp_basepath[PATH_MAX];
+char *tmp_basepath;//[PATH_MAX];
 // base path for temporary operations
 
-char video_path[PATH_MAX];
+char *video_path;//[PATH_MAX];
 // The place where to keep output pictures
 
-char ISO_filename[PATH_MAX] = "";
+char *ISO_filename;//[PATH_MAX] = "";
 // The name of the ISO file
 
 uchar force_header = 1;
@@ -1389,7 +1389,7 @@ TimerInt()
 }
 
 
-static char syscard_filename[PATH_MAX];
+char *syscard_filename;//[PATH_MAX];
 
 /*****************************************************************************
 
@@ -1697,7 +1697,7 @@ ResetPCE()
 	memset(SPRAM, 0, 64 * 8);
 
 	TimerCount = TimerPeriod;
-	memset(&io, 0, sizeof(IO));
+	hard_reset_io();
 	scanline = 0;
 	io.vdc_status = 0;
 	io.vdc_inc = 1;
