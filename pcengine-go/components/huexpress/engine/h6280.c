@@ -3463,6 +3463,8 @@ exe_go(void)
 
 	// err is set on a 'trap':
 	while (!err) {
+      ODROID_DEBUG_PERF_START2(debug_perf_total)
+	  ODROID_DEBUG_PERF_START2(debug_perf_part1)
 
 //    Log("Pc = %04x : %s\n", reg_pc, optable_runtime[Page[reg_pc>>13][reg_pc]].opname);
 
@@ -3558,11 +3560,13 @@ exe_go(void)
 #endif
 
 #ifdef USE_INSTR_SWITCH
-#include "instr-switch.c"
+#include "h6280_instr_switch.h"
 #else
-        // Log("Pc = %04x : %s\n", reg_pc, optable_runtime[PageR[reg_pc>>13][reg_pc]].opname);
 		err = (*optable_runtime[PageR[reg_pc >> 13][reg_pc]].func_exe) ();
 #endif
+
+      ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_CPU)
+      ODROID_DEBUG_PERF_START2(debug_perf_part2)
 
 #if defined(KERNEL_DEBUG)
 
@@ -3666,7 +3670,8 @@ exe_go(void)
 			}
 
 		}
-
+		ODROID_DEBUG_PERF_INCR2(debug_perf_part2, ODROID_DEBUG_PERF_AUDIO)
+		ODROID_DEBUG_PERF_INCR2(debug_perf_total, ODROID_DEBUG_PERF_TOTAL)
 	}
 	MESSAGE_ERROR("Abnormal exit from the cpu loop\n");
 }

@@ -1,1 +1,1 @@
-#include "odroid_display_lynx.h"
+#include "odroid_display_pcengine.h"

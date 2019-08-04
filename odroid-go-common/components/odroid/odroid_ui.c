@@ -833,7 +833,7 @@ char *odroid_ui_choose_file(const char *path, const char *ext) {
     wait_for_key(last_key);
     //draw_empty_line();
     odroid_display_unlock();
-    ili9341_write_frame_lynx(NULL, NULL, false);
+    //ili9341_write_frame_lynx(NULL, NULL, false);
     //char *file = &entries_buffer[entries_refs[selected]];
     char *file = (char*)entries_refs[selected];
     char *rc = (char*)malloc(strlen(path) + 1+ strlen(file)+1);

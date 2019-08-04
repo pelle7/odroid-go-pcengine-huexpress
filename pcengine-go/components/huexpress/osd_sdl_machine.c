@@ -144,14 +144,11 @@ osd_readkey(void)
 }
 
 #else
-uchar* osd_gfx_buffer = NULL;
-uchar* XBuf;
 
 int
 osd_init_machine(void)
 {
-    XBuf = (uchar*)my_special_alloc(false, 1, XBUF_WIDTH * XBUF_HEIGHT);
-    osd_gfx_buffer = XBuf + 32 + 64 * XBUF_WIDTH;
+    //
 }
 
 #endif

@@ -38,6 +38,17 @@ extern char *syscard_filename;
 const char* SD_BASE_PATH = "/sd";
 #define PATH_MAX_MY 128
 
+#define TASK_BREAK (void*)1
+uchar* osd_gfx_buffer = NULL;
+uchar* XBuf;
+QueueHandle_t vidQueue;
+TaskHandle_t videoTaskHandle;
+uint8_t* framebuffer[2];
+uint16_t* my_palette;
+volatile bool videoTaskIsRunning = false;
+
+#define AUDIO_SAMPLE_RATE (22050)
+
 void dump_heap_info_short() {
     printf("LARGEST: 8BIT: %u\n", heap_caps_get_largest_free_block( MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT ));
     printf("LARGEST: 32BIT: %u\n", heap_caps_get_largest_free_block( MALLOC_CAP_INTERNAL | MALLOC_CAP_32BIT ));
@@ -69,10 +80,64 @@ void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned long s
     return rc;
 }
 
+#define VID_TASK(func) \
+    uint8_t* param; \
+    videoTaskIsRunning = true; \
+    printf("%s: STARTED\n", __func__); \
+     \
+    while(1) \
+    { \
+        xQueuePeek(vidQueue, &param, portMAX_DELAY); \
+ \
+        if (param == TASK_BREAK) \
+            break; \
+ \
+        odroid_display_lock(); \
+        func(param, my_palette); \
+        odroid_display_unlock(); \
+        /* odroid_input_battery_level_read(&battery);*/ \
+        xQueueReceive(vidQueue, &param, portMAX_DELAY); \
+    } \
+    xQueueReceive(vidQueue, &param, portMAX_DELAY); \
+    /*odroid_display_lock();*/ \
+    /*odroid_display_show_hourglass();*/ \
+    /*odroid_display_unlock();*/ \
+    videoTaskIsRunning = false; \
+    printf("%s: FINISHED\n", __func__); \
+    vTaskDelete(NULL); \
+    while (1) {}
 
+void videoTask_mode0(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0) }
 
+NOINLINE void update_display_task()
+{
+    printf("VIDEO: Task: Start\n");
+    TaskFunction_t taskFunc = &videoTask_mode0;
+    xTaskCreatePinnedToCore(taskFunc, "videoTask", 1024 * 4, NULL, 5, &videoTaskHandle, 1);
+    while (!videoTaskIsRunning) { vTaskDelay(1); }
+    printf("VIDEO: Task: Start done\n");
+}
 
+void DoMenuHome(bool save)
+{
+    uint8_t* param = TASK_BREAK;
+    //void *exitAudioTask = NULL;
 
+    // Clear audio to prevent studdering
+    printf("PowerDown: stopping audio.\n");
+    odroid_audio_terminate();
+    //xQueueSend(audioQueue, &exitAudioTask, portMAX_DELAY);
+    //while (AudioTaskIsRunning) {}
+
+    // Stop tasks
+    printf("PowerDown: stopping tasks.\n");
+
+    xQueueSend(vidQueue, &param, portMAX_DELAY);
+    while (videoTaskIsRunning) { vTaskDelay(1); }
+
+    //DoReboot(save);
+    DoReboot(false);
+}
 
 
 NOINLINE void app_init(void)
@@ -84,7 +149,7 @@ NOINLINE void app_init(void)
     odroid_system_init();
 
     ili9341_init();
-    ili9341_write_frame_lynx(NULL, NULL, false);
+    ili9341_clear(0);
 
     // Joystick.
     odroid_input_gamepad_init();
@@ -92,8 +157,6 @@ NOINLINE void app_init(void)
 
     //printf("osd_init: ili9341_prepare\n");
     ili9341_prepare();
-
-    
 
     /////
     check_boot_cause();
@@ -139,8 +202,31 @@ NOINLINE void app_init(void)
     strcpy(sav_basepath,"/sd/odroid/data");
     strcpy(sav_path,"pce");
     
+    framebuffer[0] = my_special_alloc(false, 1, XBUF_WIDTH * XBUF_HEIGHT);
+    // framebuffer[0] = heap_caps_malloc(XBUF_WIDTH * XBUF_HEIGHT, MALLOC_CAP_8BIT | MALLOC_CAP_DMA);
+    if (!framebuffer[0]) abort();
+    printf("app_main: framebuffer[0]=%p\n", framebuffer[0]);
+
+     framebuffer[1] = my_special_alloc(false, 1, XBUF_WIDTH * XBUF_HEIGHT);
+    //framebuffer[1] = heap_caps_malloc(XBUF_WIDTH * XBUF_HEIGHT, MALLOC_CAP_8BIT | MALLOC_CAP_DMA);
+    if (!framebuffer[1]) abort();
+    printf("app_main: framebuffer[1]=%p\n", framebuffer[1]);
+    
+    my_palette = my_special_alloc(false, 1, 256 * sizeof(uint16_t));
+    if (!my_palette) abort();
+    
+    XBuf = framebuffer[0];
+    osd_gfx_buffer = XBuf + 32 + 64 * XBUF_WIDTH;
+    
+    vidQueue = xQueueCreate(1, sizeof(uint16_t*));
+    // void QuickSaveSetBuffer(void* data);
+    
+    odroid_audio_init(odroid_settings_AudioSink_get(), AUDIO_SAMPLE_RATE);
+    
     InitPCE(rom_file);
     osd_init_machine();
+    
+    update_display_task();
 }
 
 NOINLINE void app_loop(void)
@@ -148,6 +234,7 @@ NOINLINE void app_loop(void)
    printf("up and running\n");
    odroid_ui_debug_enter_loop();
    //if (!(*osd_gfx_driver_list[video_driver].init) ())
+   odroid_ui_debug_enter_loop();
    RunPCE();
    abort();
 }
@@ -156,4 +243,15 @@ void app_main(void)
 {
     app_init();
     app_loop();
+}
+
+
+bool QuickLoadState(FILE *f)
+{
+    return false;
+}
+
+bool QuickSaveState(FILE *f)
+{
+    return false;
 }

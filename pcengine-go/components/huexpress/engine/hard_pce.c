@@ -197,9 +197,9 @@ hard_init(void)
 	hard_pce = (struct_hard_pce *) malloc(sizeof(struct_hard_pce));
 	memset(hard_pce, 0, sizeof(struct_hard_pce));
 	
-	hard_pce->RAM = (uchar *)my_special_alloc(true, 1, 0x8000);//[0x8000]
+	hard_pce->RAM = (uchar *)my_special_alloc(false, 1, 0x8000);//[0x8000]
     hard_pce->PCM = (uchar *)my_special_alloc(false, 1, 0x10000);//[0x10000]
-    hard_pce->WRAM = (uchar *)my_special_alloc(true, 1, 0x2000);//[0x2000]
+    hard_pce->WRAM = (uchar *)my_special_alloc(false, 1, 0x2000);//[0x2000]
     memset(hard_pce->RAM, 0, 0x8000*sizeof(uchar));
     memset(hard_pce->PCM, 0, 0x10000*sizeof(uchar));
     memset(hard_pce->WRAM, 0, 0x2000*sizeof(uchar));
@@ -214,16 +214,26 @@ hard_init(void)
     memset(hard_pce->VRAMS, 0, VRAMSIZE*sizeof(uchar));
     memset(hard_pce->vchange, 0, VRAMSIZE/32*sizeof(uchar));
     memset(hard_pce->vchanges, 0, VRAMSIZE/128*sizeof(uchar));
-    
 
-    hard_pce->cd_extra_mem = (uchar *)my_special_alloc(false, 1, 0x10000);//[0x10000];
-    hard_pce->cd_extra_super_mem = (uchar *)my_special_alloc(false, 1, 0x30000);//[0x30000];
-    hard_pce->ac_extra_mem = (uchar *)my_special_alloc(false, 1, 0x200000);//[0x200000];
-    hard_pce->cd_sector_buffer = (uchar *)my_special_alloc(false, 1, 0x2000);//[0x2000];
-    memset(hard_pce->cd_extra_mem, 0, 0x10000*sizeof(uchar));
-    memset(hard_pce->cd_extra_super_mem, 0, 0x30000*sizeof(uchar));
-    memset(hard_pce->ac_extra_mem, 0, 0x200000*sizeof(uchar));
-    memset(hard_pce->cd_sector_buffer, 0, 0x2000*sizeof(uchar));
+/*    
+#define cd_extra_mem_size 0x10000
+#define cd_extra_super_mem_size 0x30000
+#define ac_extra_mem_size 0x200000
+#define cd_sector_buffer_size 0x2000
+*/
+#define cd_extra_mem_size 4
+#define cd_extra_super_mem_size 4
+#define ac_extra_mem_size 4
+#define cd_sector_buffer_size 4
+
+    hard_pce->cd_extra_mem = (uchar *)my_special_alloc(false, 1, cd_extra_mem_size);//[0x10000];
+    hard_pce->cd_extra_super_mem = (uchar *)my_special_alloc(false, 1, cd_extra_super_mem_size);//[0x30000];
+    hard_pce->ac_extra_mem = (uchar *)my_special_alloc(false, 1, ac_extra_mem_size);//[0x200000];
+    hard_pce->cd_sector_buffer = (uchar *)my_special_alloc(false, 1, cd_sector_buffer_size);//[0x2000];
+    memset(hard_pce->cd_extra_mem, 0, cd_extra_mem_size*sizeof(uchar));
+    memset(hard_pce->cd_extra_super_mem, 0, cd_extra_super_mem_size*sizeof(uchar));
+    memset(hard_pce->ac_extra_mem, 0, ac_extra_mem_size*sizeof(uchar));
+    memset(hard_pce->cd_sector_buffer, 0, cd_sector_buffer_size*sizeof(uchar));
 
     hard_pce->SPRAM = (uint16 *)my_special_alloc(false, 2, 64 * 4* sizeof(uint16));//[64 * 4];
     hard_pce->Pal = (uchar *)my_special_alloc(false, 1, 512);//[512];

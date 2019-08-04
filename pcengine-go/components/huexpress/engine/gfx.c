@@ -41,7 +41,6 @@ typedef struct {
 
 rgb_map_struct rgb_map[256];
 
-
 void
 SetPalette(void)
 {
@@ -311,7 +310,7 @@ render_lines(int min_line, int max_line)
 		if (SpriteON && SPONSwitch)
 			RefreshSpriteExact(min_line, max_line - 1, 0);
 
-		RefreshLine(min_line, max_line - 1);
+        RefreshLine(min_line, max_line - 1);
 
 		if (SpriteON && SPONSwitch)
 			RefreshSpriteExact(min_line, max_line - 1, 1);
@@ -331,6 +330,7 @@ render_lines(int min_line, int max_line)
 uchar
 Loop6502()
 {
+    ODROID_DEBUG_PERF_START2(debug_perf_part1)
 	static int video_dump_countdown = 0;
 	static int display_counter = 0;
 	static int last_display_counter = 0;
@@ -349,6 +349,7 @@ Loop6502()
 			// dma has just finished
 			if (SATBIntON) {
 				io.vdc_status |= VDC_SATBfinish;
+				ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_LOOP6502)
 				return_value = INT_IRQ;
 			}
 		}
@@ -363,6 +364,7 @@ Loop6502()
 				== (temp_rcr + io.VDC[VPR].B.l + io.VDC[VPR].B.h) % 263) {
 				// printf("\n---------------------\nRASTER HIT (%d)\n----------------------\n", scanline);
 				io.vdc_status |= VDC_RasHit;
+				ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_LOOP6502)
 				return_value = INT_IRQ;
 			}
 		} else {
@@ -429,8 +431,10 @@ Loop6502()
 			}
 
 			if (osd_keyboard())
+			{
+			    ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_LOOP6502)
 				return INT_QUIT;
-
+            }
 			if (!UCount)
 				RefreshScreen();
 
@@ -500,10 +504,11 @@ Loop6502()
 	if (return_value == INT_IRQ) {
 		if (!(io.irq_mask & IRQ1)) {
 			io.irq_status |= IRQ1;
+			ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_LOOP6502)
 			return return_value;
 		}
 	}
-
+    ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_LOOP6502)
 	return INT_NONE;
 }
 

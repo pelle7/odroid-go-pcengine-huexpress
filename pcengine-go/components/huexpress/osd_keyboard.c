@@ -2,6 +2,15 @@
 #include "hard_pce.h"
 #include "sound.h"
 
+#define JOY_A       0x01
+#define JOY_B       0x02
+#define JOY_SELECT  0x04
+#define JOY_RUN     0x08
+#define JOY_UP      0x10
+#define JOY_RIGHT   0x20
+#define JOY_DOWN    0x40
+#define JOY_LEFT    0x80
+
 #if 0
 
 #if defined(NETPLAY_DEBUG)
@@ -80,15 +89,6 @@ uchar current_config;
 
 // the number of the current config
 char tmp_buf[100];
-
-#define	JOY_A		0x01
-#define	JOY_B		0x02
-#define	JOY_SELECT	0x04
-#define	JOY_RUN		0x08
-#define	JOY_UP		0x10
-#define	JOY_RIGHT	0x20
-#define	JOY_DOWN	0x40
-#define	JOY_LEFT	0x80
 
 extern int UPeriod;
 
@@ -1812,14 +1812,38 @@ wait_internet_digest_status (uchar * local_input)
 
 #else
 #include "../odroid/odroid_input.h"
+#include "../odroid/odroid_ui.h"
+
+extern void DoMenuHome(bool save);
+
+    bool menu_restart = false;
+    bool ignoreMenuButton = true;
+    uint16_t menuButtonFrameCount = 0;
+    odroid_gamepad_state previousJoystickState;
 
 int
 osd_keyboard (void)
 {
     //printf("%s: \n", __func__);
-    //odroid_gamepad_state joystick;   
-    //odroid_input_gamepad_read(&joystick);
-    //if (!joystick.values[ODROID_INPUT_START]
+    odroid_gamepad_state joystick;
+    odroid_input_gamepad_read(&joystick);
+    
+    ODROID_UI_MENU_HANDLER_LOOP_V1(previousJoystickState, joystick, DoMenuHome, odroid_ui_menu);
+    previousJoystickState = joystick;
+    
+    uint8_t rc = 0;
+    if (joystick.values[ODROID_INPUT_LEFT]) rc |= JOY_LEFT;
+    if (joystick.values[ODROID_INPUT_RIGHT]) rc |= JOY_RIGHT;
+    if (joystick.values[ODROID_INPUT_UP]) rc |= JOY_UP;
+    if (joystick.values[ODROID_INPUT_DOWN]) rc |= JOY_DOWN;
+    
+    if (joystick.values[ODROID_INPUT_A]) rc |= JOY_A;
+    if (joystick.values[ODROID_INPUT_B]) rc |= JOY_B;
+    if (joystick.values[ODROID_INPUT_START]) rc |= JOY_RUN;
+    if (joystick.values[ODROID_INPUT_SELECT]) rc |= JOY_SELECT;
+    
+    io.JOY[0] = rc;
+    
     return 0;
 }
 #endif

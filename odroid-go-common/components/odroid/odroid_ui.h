@@ -138,8 +138,8 @@ void DoStartupPost();
         { \
             CALLBACK_SHUTDOWN(false); \
         } \
-        if ((!last_gamepad.values[ODROID_INPUT_VOLUME] && \
-            gamepad.values[ODROID_INPUT_VOLUME]) || menu_restart) \
+        if ((!joy_last.values[ODROID_INPUT_VOLUME] && \
+            joy.values[ODROID_INPUT_VOLUME]) || menu_restart) \
         { \
             menu_restart = CALLBACK_MENU(menu_restart); \
         }

@@ -472,7 +472,15 @@ drawVolume(char *name, int volume)
 uint startTime;
 uint stopTime;
 uint totalElapsedTime;
-int frame;
+int my_frame;
+extern QueueHandle_t vidQueue;
+extern uint8_t* framebuffer[2];
+uint8_t current_framebuffer = 0;
+extern uchar* XBuf;
+bool skipNextFrame = true;
+extern uint16_t* my_palette;
+bool scaling_enabled = false;
+uint8_t frameskip = 2;
 
 inline void update_ui_fps() {
     stopTime = xthal_get_ccount();
@@ -483,12 +491,12 @@ inline void update_ui_fps() {
       elapsedTime = ((uint64_t)stopTime + (uint64_t)0xffffffff) - (startTime);
 
     totalElapsedTime += elapsedTime;
-    ++frame;
+    ++my_frame;
 
-    if (frame == 60)
+    if (my_frame == 60)
     {
       float seconds = totalElapsedTime / (CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ * 1000000.0f);
-      float fps = frame / seconds;
+      float fps = my_frame / seconds;
       printf("FPS:%f\n", fps);
 
       //printf("HEAP:0x%x, FPS:%f, BATTERY:%d [%d]\n", esp_get_free_heap_size(), fps, battery.millivolts, battery.percentage);
@@ -496,7 +504,7 @@ inline void update_ui_fps() {
       //vTaskGetRunTimeStats(pmem);
       //printf(pmem);
       
-      frame = 0;
+      my_frame = 0;
       totalElapsedTime = 0;
       /*if (config_ui_stats) {
         update_ui_fps_text(fps);
@@ -504,8 +512,8 @@ inline void update_ui_fps() {
 #ifdef ODROID_DEBUG_PERF_USE
     odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_TOTAL, 269334479);
     odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_CPU, 230473555);
-    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_SUSIE_PAINTSPRITES, 144456221);
-    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_SUSIE_PAINTSPRITES_VLOOP, 135921297);
+    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_AUDIO, 144456221);
+    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_LOOP6502, 135921297);
 #endif
 ODROID_DEBUG_PERF_LOG()
     }
@@ -517,9 +525,8 @@ int
 osd_gfx_init(void)
 {
     printf("%s: \n", __func__);
-    io.screen_w = 352;
-	io.screen_h = 256;
     startTime = xthal_get_ccount();
+    SetPalette();
     return true;
 }
 
@@ -527,17 +534,34 @@ int
 osd_gfx_init_normal_mode()
 {
     printf("%s: \n", __func__);
+    startTime = xthal_get_ccount();
+    SetPalette();
     return true;
 }
 
 void
 osd_gfx_put_image_normal(void)
 {
-   // printf("%s: %d\n", __func__, frame);
-   if ((frame%15)==0)
+   //printf("%s: %d\n", __func__, my_frame);
+   /*
+   if ((my_frame%15)==0)
    {
-    ili9341_write_frame_rectangleLE(0,0,300,240, osd_gfx_buffer-32);
+    //ili9341_write_frame_rectangleLE(0,0,300,240, osd_gfx_buffer-32);
    }
+   */
+    if ((my_frame%frameskip)==1)
+    {
+    // printf("RES: (%dx%d)\n", io.screen_w, io.screen_h);
+    xQueueSend(vidQueue, &osd_gfx_buffer, portMAX_DELAY);
+    current_framebuffer = current_framebuffer ? 0 : 1;
+    XBuf = framebuffer[current_framebuffer];
+    osd_gfx_buffer = XBuf + 32 + 64 * XBUF_WIDTH;
+    skipNextFrame = true;
+    } else if ((frame%frameskip)==0) {
+        skipNextFrame = false;
+     } else {
+        skipNextFrame = true;
+     }
    update_ui_fps();
 }
 
@@ -545,6 +569,26 @@ void
 osd_gfx_shut_normal_mode(void)
 {
    printf("%s: \n", __func__);
+}
+
+#define COLOR_RGB(r,g,b) ( (((r)<<12)&0xf800) + (((g)<<7)&0x07e0) + (((b)<<1)&0x001f) )
+void
+osd_gfx_set_color(uchar index, uchar r, uchar g, uchar b)
+{
+   uint16_t col;
+   if (index==255)
+   {
+      col = 0xffff;
+   }
+   else
+   {
+     r = r >> 2;
+     g = g >> 2;
+     b = b >> 2;
+     col = COLOR_RGB( (r),(g),(b) );
+     col = ((col&0x00ff) << 8) | ((col&0xff00) >> 8);
+   }
+   my_palette[index] = col;
 }
 
 osd_gfx_driver osd_gfx_driver_list[1] = {
