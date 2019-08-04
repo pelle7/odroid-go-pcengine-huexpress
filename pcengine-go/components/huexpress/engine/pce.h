@@ -44,9 +44,6 @@
 #define SERVER_HOSTNAME_MAX_SIZE 256
 
 
-int32 CheckSprites(void);
-void RefreshLine(int Y1, int Y2);
-void RefreshScreen(void);
 uint32 CRC_file(char *);
 uchar CartInit(char* name);
 int CartLoad(char *name);

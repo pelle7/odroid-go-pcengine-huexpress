@@ -732,6 +732,7 @@ IO_read(uint16 A)
 extern uchar *ROM;
 #endif
 
+#ifndef MY_INLINE_bank_set
 /**
   * Change bank setting
   **/
@@ -774,7 +775,11 @@ bank_set(uchar P, uchar V)
 		PageR[P] = ROMMapR[V] - P * 0x2000;
 		PageW[P] = ROMMapW[V] - P * 0x2000;
 	}
+#ifdef MY_PCENGINE_LOGGING
+	printf("%s: %d,%d -> %X\n", __func__, P, V, PageR[P]);
+#endif
 }
+#endif
 
 void
 write_memory_simple(uint16 A, uchar V)

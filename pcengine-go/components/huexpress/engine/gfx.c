@@ -26,7 +26,6 @@
 #include "utils.h"
 #include "config.h"
 
-
 #undef TRACE
 #if ENABLE_TRACING_GFX
 #define TRACE(x...) printf("TraceGfx: " x)
@@ -201,24 +200,26 @@ change_pce_screen_height()
 	(*osd_gfx_driver_list[video_driver].mode) ();
 }
 
-
-#define MAX_GFX_CONTEXT_SLOT_NUMBER 2
-
-
-static gfx_context saved_gfx_context[MAX_GFX_CONTEXT_SLOT_NUMBER];
+gfx_context saved_gfx_context[MAX_GFX_CONTEXT_SLOT_NUMBER];
 
 //! Whether we need to draw pending lines
-static int gfx_need_redraw;
+int gfx_need_redraw;
 
 //! Frame to skip before the next frame to render
-static int UCount = 0;
+int UCount = 0;
 
 //! Whether we should change video mode after drawing the current frame
 int gfx_need_video_mode_change = 0;
 
+void gfx_init()
+{
+    UCount = 0;
+    gfx_need_video_mode_change = 0;
+    gfx_need_redraw = 0;
+}
 
 void
-save_gfx_context(int slot_number)
+save_gfx_context_(int slot_number)
 {
 
 	gfx_context *destination_context;
@@ -266,7 +267,7 @@ save_gfx_context(int slot_number)
 
 
 void
-load_gfx_context(int slot_number)
+load_gfx_context_(int slot_number)
 {
 
 	gfx_context *source_context;
@@ -289,6 +290,7 @@ load_gfx_context(int slot_number)
 }
 
 
+#ifndef MY_INLINE_GFX
 //! render lines
 /*
 	render lines into the buffer from min_line to max_line, inclusive
@@ -320,14 +322,17 @@ render_lines(int min_line, int max_line)
 
 	gfx_need_redraw = 0;
 }
+#endif
 
+
+#ifndef MY_INLINE_GFX_Loop6502
 
 //! Rewritten version of Loop6502 from scratch, called when each line drawing should occur
 /* TODO:
 	 - sprite #0 collision checking (occur as soon as the sprite #0 is shown and overlap another sprite
 	 - frame skipping to test
 */
-uchar
+inline uchar
 Loop6502()
 {
     ODROID_DEBUG_PERF_START2(debug_perf_part1)
@@ -349,7 +354,6 @@ Loop6502()
 			// dma has just finished
 			if (SATBIntON) {
 				io.vdc_status |= VDC_SATBfinish;
-				ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_LOOP6502)
 				return_value = INT_IRQ;
 			}
 		}
@@ -364,7 +368,6 @@ Loop6502()
 				== (temp_rcr + io.VDC[VPR].B.l + io.VDC[VPR].B.h) % 263) {
 				// printf("\n---------------------\nRASTER HIT (%d)\n----------------------\n", scanline);
 				io.vdc_status |= VDC_RasHit;
-				ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_LOOP6502)
 				return_value = INT_IRQ;
 			}
 		} else {
@@ -511,7 +514,19 @@ Loop6502()
     ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_LOOP6502)
 	return INT_NONE;
 }
+#else
+/*
+GFX_Loop6502_Init
 
+inline uchar
+Loop6502_2()
+{
+char I;
+#include "gfx_Loop6502.h"
+return I;
+}
+*/
+#endif
 
 int video_dump_flag = 0;
 

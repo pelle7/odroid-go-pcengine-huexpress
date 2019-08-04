@@ -264,4 +264,20 @@ enum _VDC_REG {
 #define AC_USE_OFFSET 0x02
 #define AC_ENABLE_INC 0x01
 
+#ifdef MY_INLINE_bank_set
+
+// uchar P, uchar V
+#define bank_set(P, V) \
+    { \
+    mmr[P] = V; \
+    if (ROMMapR[V] == IOAREA) { \
+        PageR[P] = IOAREA; \
+        PageW[P] = IOAREA; \
+    } else { \
+        PageR[P] = ROMMapR[V] - P * 0x2000; \
+        PageW[P] = ROMMapW[V] - P * 0x2000; \
+    } }
+
+#endif
+
 #endif

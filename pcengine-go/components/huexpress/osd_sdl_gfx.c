@@ -480,7 +480,8 @@ extern uchar* XBuf;
 bool skipNextFrame = true;
 extern uint16_t* my_palette;
 bool scaling_enabled = false;
-uint8_t frameskip = 2;
+uint8_t frameskip = 10;
+//uint8_t frameskip = 2;
 
 inline void update_ui_fps() {
     stopTime = xthal_get_ccount();

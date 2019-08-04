@@ -13,6 +13,40 @@
 #include "utils.h"
 
 
+#ifdef MY_INLINE
+#define imm_operand(addr) ((uchar) (PageR[(unsigned short int)(addr >> 13)][addr]))
+#define get_8bit_addr(addr) get_8bit_addr_(addr)
+#define put_8bit_addr(addr, byte) put_8bit_addr_(addr, byte)
+#define get_16bit_addr(addr) get_16bit_addr_(addr)
+
+#define get_8bit_zp(zp_addr) ((uchar) * (zp_base + zp_addr))
+#define get_16bit_zp(zp_addr) get_16bit_zp_(zp_addr)
+#define put_8bit_zp(zp_addr, byte) *(zp_base + zp_addr) = byte
+#define push_8bit(byte)  *(sp_base + reg_s--) = byte;
+
+#define pull_8bit() ((uchar) * (sp_base + ++reg_s))
+#define push_16bit(addr) { \
+   *(sp_base + reg_s--) = (uchar) (addr >> 8); \
+   *(sp_base + reg_s--) = (uchar) (addr & 0xFF); }
+#define pull_16bit() pull_16bit_()
+#else
+#define imm_operand(addr) imm_operand_(addr)
+#define get_8bit_addr(addr) get_8bit_addr_(addr)
+#define put_8bit_addr(addr, byte) put_8bit_addr_(addr, byte)
+#define get_16bit_addr(addr) get_16bit_addr_(addr)
+
+#define get_8bit_zp(zp_addr) get_8bit_zp_(zp_addr)
+#define get_16bit_zp(zp_addr) get_16bit_zp_(zp_addr)
+#define put_8bit_zp(zp_addr, byte) put_8bit_zp_(zp_addr, byte)
+#define push_8bit(byte)  push_8bit_(byte)
+
+#define pull_8bit() pull_8bit_()
+#define push_16bit(addr) push_16bit_(addr)
+#define pull_16bit() pull_16bit_()
+
+#endif
+
+
 #if defined(KERNEL_DEBUG)
 static
 	int
@@ -61,16 +95,15 @@ uchar flnz_list[256] = {
 //  as a function:
 
 inline uchar
-imm_operand(uint16 addr)
+imm_operand_(uint16 addr)
 {
 	register unsigned short int memreg = addr >> 13;
 	return ((uchar) (PageR[memreg][addr]));
 }
 
-
 // This is the more generalized access routine:
 inline uchar
-get_8bit_addr(uint16 addr)
+get_8bit_addr_(uint16 addr)
 {
 	register unsigned short int memreg = addr >> 13;
 
@@ -81,7 +114,7 @@ get_8bit_addr(uint16 addr)
 }
 
 inline void
-put_8bit_addr(uint16 addr, uchar byte)
+put_8bit_addr_(uint16 addr, uchar byte)
 {
 	register unsigned int memreg = addr >> 13;
 
@@ -93,7 +126,7 @@ put_8bit_addr(uint16 addr, uchar byte)
 }
 
 inline uint16
-get_16bit_addr(uint16 addr)
+get_16bit_addr_(uint16 addr)
 {
 	register unsigned int memreg = addr >> 13;
 	uint16 ret_16bit = (uchar) PageR[memreg][addr];
@@ -121,13 +154,13 @@ get_16bit_addr(uint16 addr)
 #define chk_flnz_8bit(x) reg_p = ((reg_p & (~(FL_N|FL_T|FL_Z))) | flnz_list[x]);
 
 inline uchar
-get_8bit_zp(uchar zp_addr)
+get_8bit_zp_(uchar zp_addr)
 {
 	return ((uchar) * (zp_base + zp_addr));
 }
 
 inline uint16
-get_16bit_zp(uchar zp_addr)
+get_16bit_zp_(uchar zp_addr)
 {
 	uint16 n = *(zp_base + zp_addr);
 	n += (*(zp_base + (uchar) (zp_addr + 1)) << 8);
@@ -136,25 +169,25 @@ get_16bit_zp(uchar zp_addr)
 
 
 inline void
-put_8bit_zp(uchar zp_addr, uchar byte)
+put_8bit_zp_(uchar zp_addr, uchar byte)
 {
 	*(zp_base + zp_addr) = byte;
 }
 
 void
-push_8bit(uchar byte)
+push_8bit_(uchar byte)
 {
 	*(sp_base + reg_s--) = byte;
 }
 
 uchar
-pull_8bit(void)
+pull_8bit_(void)
 {
 	return ((uchar) * (sp_base + ++reg_s));
 }
 
 void
-push_16bit(uint16 addr)
+push_16bit_(uint16 addr)
 {
 	*(sp_base + reg_s--) = (uchar) (addr >> 8);
 	*(sp_base + reg_s--) = (uchar) (addr & 0xFF);
@@ -162,7 +195,7 @@ push_16bit(uint16 addr)
 }
 
 uint16
-pull_16bit(void)
+pull_16bit_(void)
 {
 	uint16 n = (uchar) * (sp_base + ++reg_s);
 	n += (uint16) (((uchar) * (sp_base + ++reg_s)) << 8);
@@ -3447,8 +3480,10 @@ osd_getTime(void)
 void
 exe_go(void)
 {
+    gfx_init();
 	int err = 0;
 	uchar I;
+	GFX_Loop6502_Init
 
 #if defined(KERNEL_DEBUG)
 	uint16 old_reg_pc;
@@ -3464,7 +3499,6 @@ exe_go(void)
 	// err is set on a 'trap':
 	while (!err) {
       ODROID_DEBUG_PERF_START2(debug_perf_total)
-	  ODROID_DEBUG_PERF_START2(debug_perf_part1)
 
 //    Log("Pc = %04x : %s\n", reg_pc, optable_runtime[Page[reg_pc>>13][reg_pc]].opname);
 
@@ -3559,6 +3593,8 @@ exe_go(void)
 		Log("[%04X] (%02X, %-4s) (%02X,%02X,%02X) (%02X,%02X) {%02X,%04X} {%02X}\n", reg_pc, rr, optable_runtime[rr].opname, reg_a, reg_x, reg_y, reg_s, reg_p, get_8bit_addr(get_16bit_zp(0)), get_16bit_zp(0), get_8bit_zp(0x48));
 #endif
 
+      ODROID_DEBUG_PERF_START2(debug_perf_part1)
+
 #ifdef USE_INSTR_SWITCH
 #include "h6280_instr_switch.h"
 #else
@@ -3566,7 +3602,6 @@ exe_go(void)
 #endif
 
       ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_CPU)
-      ODROID_DEBUG_PERF_START2(debug_perf_part2)
 
 #if defined(KERNEL_DEBUG)
 
@@ -3638,7 +3673,14 @@ exe_go(void)
 			// scanline++;
 
 			// Log("Calling periodic handler\n");
+#ifdef MY_INLINE_GFX_Loop6502
+{
+            #include "gfx_Loop6502.h"
+            //I = Loop6502_2();     /* Call the periodic handler */
+}
+#else
 			I = Loop6502();		/* Call the periodic handler */
+#endif
 			// _ICount += _IPeriod;
 			/* Reset the cycle counter */
 			cycles = 0;
@@ -3670,7 +3712,6 @@ exe_go(void)
 			}
 
 		}
-		ODROID_DEBUG_PERF_INCR2(debug_perf_part2, ODROID_DEBUG_PERF_AUDIO)
 		ODROID_DEBUG_PERF_INCR2(debug_perf_total, ODROID_DEBUG_PERF_TOTAL)
 	}
 	MESSAGE_ERROR("Abnormal exit from the cpu loop\n");

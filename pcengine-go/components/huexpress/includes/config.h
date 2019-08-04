@@ -2,7 +2,7 @@
 #define BSD_CD_HARDWARE_SUPPORT 1
 
 /* Trace settings for debug purposes */
-#define ENABLE_TRACING 1
+#define ENABLE_TRACING 0
 #define ENABLE_TRACING_AUDIO 0
 #define ENABLE_TRACING_BIOS 0
 #define ENABLE_TRACING_CD 0

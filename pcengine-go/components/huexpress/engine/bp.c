@@ -125,17 +125,17 @@ handle_bp(int nb_bp)
 			reg_pc);
 #endif
 
-	if ((get_8bit_addr(reg_pc) & 0x0F) == 0x0B) {	// We only look here for Bp since PC or bp status can have changed
+	if ((get_8bit_addr_(reg_pc) & 0x0F) == 0x0B) {	// We only look here for Bp since PC or bp status can have changed
 
 #ifndef FINAL_RELEASE
 		fprintf(stderr, "run trick: a bp has been asked to be put at %X\n",
 				reg_pc);
 #endif
 
-		Wr6502(reg_pc, Bp_list[get_8bit_addr(reg_pc) >> 4].original_op);
+		Wr6502(reg_pc, Bp_list[get_8bit_addr_(reg_pc) >> 4].original_op);
 		// Replace the opcode in the rom
 
-		Bp_list[get_8bit_addr(reg_pc) >> 4].flag = NOT_USED;
+		Bp_list[get_8bit_addr_(reg_pc) >> 4].flag = NOT_USED;
 		// Temporary, the breakpoint disappears
 		// to be replaced by the restore_bp
 

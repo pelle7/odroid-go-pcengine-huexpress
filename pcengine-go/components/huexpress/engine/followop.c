@@ -3,7 +3,7 @@
 uint16
 follow_straight(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 
 	return where + addr_info_debug[optable_debug[op].addr_mode].size;
 }
@@ -11,8 +11,8 @@ follow_straight(uint16 where)
 uint16
 follow_BBRi(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
-	uchar test_char = get_8bit_addr(get_8bit_addr((uint16) (where + 1)));
+	uchar op = get_8bit_addr_(where);
+	uchar test_char = get_8bit_addr_(get_8bit_addr_((uint16) (where + 1)));
 	uchar nb_bit = op >> 4;
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
@@ -23,14 +23,14 @@ follow_BBRi(uint16 where)
 
 	// jump
 	return where + addr_info_debug[optable_debug[op].addr_mode].size
-		+ (char) get_8bit_addr((uint16) (where + size - 1));
+		+ (char) get_8bit_addr_((uint16) (where + size - 1));
 
 }
 
 uint16
 follow_BCC(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (reg_p & FL_C)			// no jump
@@ -38,14 +38,14 @@ follow_BCC(uint16 where)
 
 	// jump
 	return where + size +
-		(char) get_8bit_addr((uint16) (where + size - 1));
+		(char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_BBSi(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
-	uchar test_char = get_8bit_addr(get_8bit_addr((uint16) (where + 1)));
+	uchar op = get_8bit_addr_(where);
+	uchar test_char = get_8bit_addr_(get_8bit_addr_((uint16) (where + 1)));
 	uchar nb_bit = op >> 4;
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
@@ -56,14 +56,14 @@ follow_BBSi(uint16 where)
 
 	// jump
 	return where + addr_info_debug[optable_debug[op].addr_mode].size
-		+ (char) get_8bit_addr((uint16) (where + size - 1));
+		+ (char) get_8bit_addr_((uint16) (where + size - 1));
 
 }
 
 uint16
 follow_BCS(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (!(reg_p & FL_C))		// no jump
@@ -71,13 +71,13 @@ follow_BCS(uint16 where)
 
 	// jump
 	return where + size +
-		(char) get_8bit_addr((uint16) (where + size - 1));
+		(char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_BEQ(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (reg_pc & FL_Z)			// no jump
@@ -85,13 +85,13 @@ follow_BEQ(uint16 where)
 
 	// jump
 	return where + size +
-		(char) get_8bit_addr((uint16) (where + size - 1));
+		(char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_BNE(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (!(reg_pc & FL_Z))		// no jump
@@ -99,13 +99,13 @@ follow_BNE(uint16 where)
 
 	// jump
 	return where + size +
-		(char) get_8bit_addr((uint16) (where + size - 1));
+		(char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_BMI(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (reg_p & FL_N)			// no jump
@@ -113,13 +113,13 @@ follow_BMI(uint16 where)
 
 	// jump
 	return where + size +
-		(char) get_8bit_addr((uint16) (where + size - 1));
+		(char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_BPL(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (!(reg_p & FL_N))		// no jump
@@ -127,23 +127,23 @@ follow_BPL(uint16 where)
 
 	// jump
 	return where + size +
-		(char) get_8bit_addr((uint16) (where + size - 1));
+		(char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_BRA(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	return where + size			// always jump
-		+ (char) get_8bit_addr((uint16) (where + size - 1));
+		+ (char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_BSR(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (running_mode == STEPPING)	// no jump
@@ -151,13 +151,13 @@ follow_BSR(uint16 where)
 
 	// jump
 	return where + size +
-		(char) get_8bit_addr((uint16) (where + size - 1));
+		(char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_BVC(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (reg_p & FL_V)			// no jump
@@ -165,13 +165,13 @@ follow_BVC(uint16 where)
 
 	// jump
 	return where + size +
-		(char) get_8bit_addr((uint16) (where + size - 1));
+		(char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_BVS(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (!(reg_p & FL_V))		// no jump
@@ -179,63 +179,63 @@ follow_BVS(uint16 where)
 
 	// jump
 	return where + size +
-		(char) get_8bit_addr((uint16) (where + size - 1));
+		(char) get_8bit_addr_((uint16) (where + size - 1));
 }
 
 uint16
 follow_JMPabs(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
-	return (uint16) (get_8bit_addr((uint16) (where + size - 2)) +
-					 256 * get_8bit_addr((uint16) (where + size - 1)));
+	return (uint16) (get_8bit_addr_((uint16) (where + size - 2)) +
+					 256 * get_8bit_addr_((uint16) (where + size - 1)));
 
 }
 
 uint16
 follow_JMPindir(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	uint16 indir =
-		(uint16) (get_8bit_addr((uint16) (where + size - 2)) +
-				  256 * get_8bit_addr((uint16) (where + size - 1)));
+		(uint16) (get_8bit_addr_((uint16) (where + size - 2)) +
+				  256 * get_8bit_addr_((uint16) (where + size - 1)));
 
-	return (uint16) (get_8bit_addr((uint16) indir) +
-					 256 * get_8bit_addr((uint16) (indir + 1)));
+	return (uint16) (get_8bit_addr_((uint16) indir) +
+					 256 * get_8bit_addr_((uint16) (indir + 1)));
 
 }
 
 uint16
 follow_JMPindirX(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	uint16 indir =
-		(uint16) (get_8bit_addr((uint16) (where + size - 2)) +
-				  256 * get_8bit_addr((uint16) (where + size - 1)));
+		(uint16) (get_8bit_addr_((uint16) (where + size - 2)) +
+				  256 * get_8bit_addr_((uint16) (where + size - 1)));
 
 	indir += reg_x;
 
-	return (uint16) (get_8bit_addr((uint16) indir) +
-					 256 * get_8bit_addr((uint16) (indir + 1)));
+	return (uint16) (get_8bit_addr_((uint16) indir) +
+					 256 * get_8bit_addr_((uint16) (indir + 1)));
 
 }
 
 uint16
 follow_JSR(uint16 where)
 {
-	uchar op = get_8bit_addr(where);
+	uchar op = get_8bit_addr_(where);
 	uchar size = addr_info_debug[optable_debug[op].addr_mode].size;
 
 	if (running_mode == STEPPING)
 		return where + size;	// no jump
 
-	return (uint16) (get_8bit_addr((uint16) (where + size - 2)) +
-					 256 * get_8bit_addr((uint16) (where + size - 1)));
+	return (uint16) (get_8bit_addr_((uint16) (where + size - 2)) +
+					 256 * get_8bit_addr_((uint16) (where + size - 1)));
 
 }
 

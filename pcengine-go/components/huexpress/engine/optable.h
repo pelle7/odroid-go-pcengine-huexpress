@@ -40,7 +40,7 @@ typedef struct mode_debug {
 
 typedef struct op_debug {
 	int addr_mode;
-	char *opname;
+	const char *opname;
 	 uint16(*following_IP) (uint16);
 } operation_debug;
 

@@ -232,7 +232,6 @@ NOINLINE void app_init(void)
 NOINLINE void app_loop(void)
 {
    printf("up and running\n");
-   odroid_ui_debug_enter_loop();
    //if (!(*osd_gfx_driver_list[video_driver].init) ())
    odroid_ui_debug_enter_loop();
    RunPCE();

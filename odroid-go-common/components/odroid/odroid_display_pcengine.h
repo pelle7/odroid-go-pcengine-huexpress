@@ -2,9 +2,15 @@
 void ili9341_write_frame_pcengine_mode0(uint8_t* buffer, uint16_t* pal);
 #else
 
+#include "../huexpress/includes/cleantypes.h"
+
 #define PCENGINE_GAME_WIDTH  352
 #define PCENGINE_GAME_HEIGHT 240
 #define PCENGINE_REMOVE_X 16
+#define XBUF_WIDTH  (536 + 32 + 32)
+
+extern uchar *Pal;
+extern uchar *SPM;
 
 void ili9341_write_frame_pcengine_mode0(uint8_t* buffer, uint16_t* pal)
 {
@@ -33,6 +39,8 @@ void ili9341_write_frame_pcengine_mode0(uint8_t* buffer, uint16_t* pal)
       }
       send_continue_line(line_buffer, 320, 4);
     }
+    memset(buffer, Pal[0], 240 * XBUF_WIDTH);
+    memset(SPM, 0, 240 * XBUF_WIDTH);
 }
 
 #endif

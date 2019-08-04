@@ -268,12 +268,12 @@ extern int tya(void);
 
 extern uchar flnz_list[256];
 
-uchar imm_operand(uint16 addr);
-void put_8bit_zp(uchar zp_addr, uchar byte);
-uchar get_8bit_zp(uchar zp_addr);
-uint16 get_16bit_zp(uchar zp_addr);
-uint16 get_16bit_addr(uint16 addr);
-void put_8bit_addr(uint16 addr, uchar byte);
-uchar get_8bit_addr(uint16 addr);
+uchar imm_operand_(uint16 addr);
+void put_8bit_zp_(uchar zp_addr, uchar byte);
+uchar get_8bit_zp_(uchar zp_addr);
+uint16 get_16bit_zp_(uchar zp_addr);
+uint16 get_16bit_addr_(uint16 addr);
+void put_8bit_addr_(uint16 addr, uchar byte);
+uchar get_8bit_addr_(uint16 addr);
 
 #endif

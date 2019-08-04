@@ -5,7 +5,7 @@
 
 typedef struct op {
 	int addr_mode;
-	char *opname;
+	const char *opname;
 } operation;
 
 /* A bit modified to include Break Points  : "BP?" at $?B */

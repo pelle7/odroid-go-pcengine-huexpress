@@ -65,6 +65,8 @@ extern char exact_putspritem;
 extern int frame;
 // number of frame displayed
 
+extern int sprite_usespbg;
+
 //extern void (*PutSpriteMaskedFunction)(byte *P,byte *C,unsigned   long *C2,byte *R,int h,int inc,byte *M,byte pr);
 // the general function for *masked
 
@@ -80,11 +82,24 @@ extern int frame;
 //extern void PutSprite(byte *P,byte *C,unsigned    long *C2,byte *R,int h,int inc);
 // the simplified function
 
-extern void RefreshSpriteExact(int, int, uchar);
-// The true refreshing function
-
 extern void (*RefreshSprite) (int Y1, int Y2, uchar bg);
 // The pointer toward the used function
 
+#define FC_W     io.screen_w
+#define FC_H     256
+#define V_FLIP  0x8000
+#define H_FLIP  0x0800
+extern uchar *SPM;
+
+#ifdef MY_INLINE_SPRITE
+#include "sprite_ops_define.h"
+#else
+extern void RefreshSpriteExact(int Y1, int Y2, uchar bg);
+// The true refreshing function
+extern void RefreshLine(int Y1, int Y2);
+#endif
+#ifndef MY_INLINE_SPRITE_CheckSprites
+extern int32 CheckSprites(void);
+#endif
 
 #endif
