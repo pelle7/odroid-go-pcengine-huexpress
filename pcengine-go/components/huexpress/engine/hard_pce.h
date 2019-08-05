@@ -51,8 +51,11 @@ void hard_init(void);
 void hard_reset_io(void);
 void hard_term(void);
 
-void IO_write(uint16 A, uchar V);
-uchar IO_read(uint16 A);
+#define IO_write(A,V) IO_write_(A,V)
+#define IO_read(A) IO_read_(A) 
+
+void IO_write_(uint16 A, uchar V);
+uchar IO_read_(uint16 A);
 void bank_set(uchar P, uchar V);
 
 extern void (*write_memory_function) (uint16, uchar);
@@ -163,11 +166,15 @@ extern uchar *IOAREA;
 // physical address on emulator machine of the IO area (fake address as it has to be handled specially)
 
 //! 
-extern uchar *PageR[8];
+//extern uchar *PageR[8];
+extern uchar **PageR;
 extern uchar *ROMMapR[256];
+//extern uchar **ROMMapR;
 
-extern uchar *PageW[8];
+//extern uchar *PageW[8];
+extern uchar **PageW;
 extern uchar *ROMMapW[256];
+//extern uchar **ROMMapW;
 
 //! False "ram"s in which you can read/write (to homogeneize writes into RAM, BRAM, ... as well as in rom) but the result isn't coherent
 extern uchar *trap_ram_read;
@@ -221,9 +228,10 @@ extern uchar reg_s;
 
 // These are the main h6280 register, reg_p is the flag register
 
-#define cycles (*p_cycles)
+//#define cycles (*p_cycles)
+//extern uint32 *p_cycles;
+extern uint32 cycles;
 
-extern uint32 *p_cycles;
 // Number of pc engine cycles elapsed since the resetting of the emulated console
 
 /**
@@ -277,6 +285,7 @@ enum _VDC_REG {
         PageR[P] = ROMMapR[V] - P * 0x2000; \
         PageW[P] = ROMMapW[V] - P * 0x2000; \
     } }
+    //if (P == 7) printf("%s: bank_set: %d,%d -> %X (%X)\n", __func__, P, V, PageR[P], ROMMapR[V]);
 
 #endif
 

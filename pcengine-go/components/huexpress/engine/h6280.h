@@ -267,6 +267,10 @@ extern int tya(void);
 #define	VEC_BRK		0xFFF6
 
 extern uchar flnz_list[256];
+//extern uchar *flnz_list;
+
+#define flnz_list_get(num) flnz_list[num]
+//#define flnz_list_get(num) (num==0?FL_Z:num>=0x80?FL_N:0)
 
 uchar imm_operand_(uint16 addr);
 void put_8bit_zp_(uchar zp_addr, uchar byte);

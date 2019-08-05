@@ -511,10 +511,21 @@ inline void update_ui_fps() {
         update_ui_fps_text(fps);
       }*/
 #ifdef ODROID_DEBUG_PERF_USE
+    /*
     odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_TOTAL, 269334479);
     odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_CPU, 230473555);
-    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_AUDIO, 144456221);
-    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_LOOP6502, 135921297);
+    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_LOOP6502, 144456221);
+    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_MEM_ACCESS1, 135921297);
+    */
+    odroid_debug_perf_log_one("cpu"        , ODROID_DEBUG_PERF_CPU);
+    odroid_debug_perf_log_one("loop6502"   , ODROID_DEBUG_PERF_LOOP6502);
+    odroid_debug_perf_log_one("INT"        , ODROID_DEBUG_PERF_INT);
+    odroid_debug_perf_log_one("INT2"       , ODROID_DEBUG_PERF_INT2);
+    
+    odroid_debug_perf_log_one("R_S_E"      , ODROID_DEBUG_PERF_SPRITE_RefreshSpriteExact);
+    odroid_debug_perf_log_one("Refr_Line"  , ODROID_DEBUG_PERF_SPRITE_RefreshLine);
+    odroid_debug_perf_log_one("Refr_Scr"   , ODROID_DEBUG_PERF_SPRITE_RefreshScreen);
+    odroid_debug_perf_log_one("Mem Op Acc" , ODROID_DEBUG_PERF_MEM_ACCESS1);
 #endif
 ODROID_DEBUG_PERF_LOG()
     }

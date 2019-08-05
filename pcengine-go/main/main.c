@@ -57,8 +57,6 @@ void dump_heap_info_short() {
 }
 
 void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned long size) {
-    // if (size==16384) speed = 1;
-    
     uint32_t caps = (speed?MALLOC_CAP_INTERNAL:MALLOC_CAP_SPIRAM) | 
       ( bytes==1?MALLOC_CAP_8BIT:MALLOC_CAP_32BIT);
       /*

@@ -15,6 +15,7 @@
 #include <stdlib.h>
 
 #include "utils.h"
+#include "myadd.h"
 
 // Known NEC PC-Engine HuCards: 323
 // Known NEC PC-Engine CD-ROMs: 438
@@ -523,7 +524,8 @@ CRC_file(char *name)
 		//fprintf(stderr,"HEADER OF 0X%X BYTES\n",taille & 0x0FFF);
 		fseek(F, taille & 0x0FFF, SEEK_SET);
 	}
-	if (!(tmp_data = (uchar *) (malloc(true_size))))
+	//if (!(tmp_data = (uchar *) (malloc(true_size))))
+	if (!(tmp_data = (uchar *) (my_special_alloc(false, 1, true_size))))
 		exit(-1);
 	fread(tmp_data, true_size, 1, F);
 	for (index = 0; index < true_size; index++) {

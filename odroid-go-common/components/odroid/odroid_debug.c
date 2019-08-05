@@ -17,6 +17,8 @@ void odroid_debug_perf_init()
     memset(odroid_debug_perf_data_time, 0, sizeof(int)*ODROID_DEBUG_PERF_DATA_MAX);
 }
 
+#define time_div 1000
+
 void odroid_debug_perf_log()
 {
 #ifdef ODROID_DEBUG_PERF_LOG_ALL
@@ -27,7 +29,6 @@ void odroid_debug_perf_log()
    for (int i = 0; i<ODROID_DEBUG_PERF_DATA_MAX/16;i++)
    {
     int offset = i*16;
-    #define time_div 1000
     #define TIME_MIN (total/1000)
     
     printf(LOG_COLOR(LOG_COLOR_BLACK));
@@ -75,13 +76,13 @@ void odroid_debug_perf_log()
             col_other = true;
         }
         else
-        if (f>20)
+        if (f>0.3) // 20
         {
             printf(LOG_COLOR(LOG_COLOR_BROWN));
             col_other = true;
         }
         else
-        if (f>=1)
+        if (f>=0.1)// 1
         {
             printf(LOG_COLOR(LOG_COLOR_GREEN));
             col_other = true;
@@ -107,6 +108,18 @@ void odroid_debug_perf_log_specific(int call, int base)
 {
     float f = 100 * ((float)base)/((float)odroid_debug_perf_data_time[call]);
     printf("0x%02X %8.2f%% (%16d)\n", call, f, odroid_debug_perf_data_time[call]);
+}
+
+void odroid_debug_perf_log_one(const char *text, int call)
+{
+    int total = odroid_debug_perf_data_time[0];
+    float f = 100 * ((float)odroid_debug_perf_data_time[call])/total;
+    printf("%-24s: %16d %16d    %8.2f%%\n",
+        text,
+        odroid_debug_perf_data_calls[call],
+        odroid_debug_perf_data_time[call]/time_div,
+        f
+        ); 
 }
 
 #endif

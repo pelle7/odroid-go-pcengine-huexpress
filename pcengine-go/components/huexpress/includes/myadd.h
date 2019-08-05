@@ -7,7 +7,8 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 
 #define USE_INSTR_SWITCH
 #define MY_HCD_ENABLED
-#define ODROID_DEBUG_PERF_CPU_ALL_INSTR
+//#define ODROID_DEBUG_PERF_CPU_ALL_INSTR
+//#define MY_LOG_CPU_NOT_INLINED
 #define MY_PCENGINE_LOGGING
 
 #define MY_INLINE
@@ -22,5 +23,10 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 #define MY_INLINE_SPRITE_plane2pixel
 #define MY_INLINE_SPRITE_CheckSprites
 #define MY_INLINE_SPRITE_RefreshScreen
+#define MY_INLINE_h6280_opcodes
+//#define MY_h6280_flnz_list
+//#define MY_INLINE_IO_ReadWrite
+
+#define MY_USE_FAST_RAM
 
 extern bool skipNextFrame;

@@ -1,7 +1,7 @@
 #pragma once
 
-#define ODROID_DEBUG_PERF_USE
-#define ODROID_DEBUG_PERF_LOG_ALL
+//#define ODROID_DEBUG_PERF_USE
+//#define ODROID_DEBUG_PERF_LOG_ALL
 
 #ifndef ODROID_DEBUG_PERF_USE
 #define ODROID_DEBUG_PERF_INIT()
@@ -43,8 +43,10 @@ typedef enum
 {
     ODROID_DEBUG_PERF_TOTAL = 0,
     ODROID_DEBUG_PERF_CPU,
-    ODROID_DEBUG_PERF_AUDIO,
+    /* ODROID_DEBUG_PERF_AUDIO,*/
     ODROID_DEBUG_PERF_LOOP6502,
+    ODROID_DEBUG_PERF_INT,
+    ODROID_DEBUG_PERF_INT2,
     ODROID_DEBUG_PERF_SPRITE_RefreshSpriteExact,
     ODROID_DEBUG_PERF_SPRITE_RefreshLine,
     ODROID_DEBUG_PERF_SPRITE_RefreshScreen,
@@ -56,6 +58,7 @@ typedef enum
 void odroid_debug_perf_init();
 void odroid_debug_perf_log();
 void odroid_debug_perf_log_specific(int call, int base);
+void odroid_debug_perf_log_one(const char *text, int call);
 
 #ifdef __cplusplus
 }
