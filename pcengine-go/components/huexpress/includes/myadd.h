@@ -26,6 +26,7 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 #define MY_INLINE_h6280_opcodes
 //#define MY_h6280_flnz_list
 //#define MY_INLINE_IO_ReadWrite
+#define MY_h6280_INT_cycle_counter
 
 #define MY_USE_FAST_RAM
 

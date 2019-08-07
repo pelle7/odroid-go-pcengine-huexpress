@@ -1152,8 +1152,6 @@ ResetPCE()
 		io.PSG[i][4] = 0x80;
 	}
 
-	CycleOld = 0;
-
 #if !defined(TEST_ROM_RELOCATED)
 	mmr[7] = 0x00;
 	bank_set(7, 0x00);
@@ -1205,7 +1203,8 @@ ResetPCE()
 
 	reg_pc = Op6502(VEC_RESET) + 256 * Op6502(VEC_RESET + 1);
 
-	CycleNew = 0;
+	//CycleNew = 0;
+	//CycleOld = 0;
 
 	if (debug_on_beginning) {
 		Bp_list[GIVE_HAND_BP].position = reg_pc;

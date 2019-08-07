@@ -1,3 +1,5 @@
+#define cycles cycles_
+
 //
 // Implementation of actual opcodes:
 //
@@ -3248,3 +3250,5 @@ int_tiq(void)
     reg_pc = get_16bit_addr(0xFFFA);
     return 0;
 }
+
+#undef cycles

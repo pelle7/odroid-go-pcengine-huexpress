@@ -42,8 +42,8 @@ extern uchar main_buf[SBUF_SIZE_BYTE];
 // the mixed buffer, may be removed later for hard mixing...
 #endif
 
-extern uint32 CycleOld;
-extern uint32 CycleNew;
+//extern uint32 CycleOld;
+//extern uint32 CycleNew;
 // indicates the last time music has been "released"
 
 extern uint32 dwNewPos;

@@ -79,7 +79,7 @@ uchar *IOAREA;
 uint32 *p_cyclecount;
 uint32 *p_cyclecountold;
 
-const uint32 TimerPeriod = 1097;
+//const uint32 TimerPeriod = 1097;
 
 // registers
 
@@ -123,7 +123,7 @@ uchar *trap_ram_write;
 
 // Miscellaneous
 //DRAM_ATTR uint32 *p_cycles;
-DRAM_ATTR uint32 cycles;
+DRAM_ATTR uint32 cycles_;
 int32 *p_external_control_cpu;
 
 //! External rom size hack for shared memory indication
@@ -292,7 +292,7 @@ hard_init(void)
 	p_cyclecountold = &hard_pce->s_cyclecountold;
 
 	//p_cycles = &hard_pce->s_cycles;
-	cycles = 0;
+	cycles_ = 0;
 
 	mmr = hard_pce->mmr;
 

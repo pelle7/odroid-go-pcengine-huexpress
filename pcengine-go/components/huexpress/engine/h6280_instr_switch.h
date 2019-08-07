@@ -141,8 +141,7 @@ static _used[256];
         break;
     case 0x12:
         // {ora_zpind, AM_ZPIND, "ORA"}
-        OP_CALL_THROUGH_LOOKUP
-        //_OPCODE_ora__(zpindy_operand, 10, 7, _) 
+        _OPCODE_ora__(zpind_operand, 10, 7, 2) 
         break;
     case 0x13:
         // {st1, AM_IMMED, "ST1"}
@@ -1269,7 +1268,7 @@ static _used[256];
         break;
     case 0xEC:
         // {cpx_abs, AM_ABS, "CPX"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_cp__(abs_operand, reg_x, 5, 3) 
         break;
     case 0xED:
         // {sbc_abs, AM_ABS, "SBC"}

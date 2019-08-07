@@ -187,7 +187,7 @@ extern uchar *trap_ram_write;
 extern uint32 *p_cyclecount;
 // Number of elapsed cycles
 
-#define cyclecountold (*p_cyclecountold)
+//#define cyclecountold (*p_cyclecountold)
 
 extern uint32 *p_cyclecountold;
 // Previous number of elapsed cycles
@@ -196,7 +196,8 @@ extern uint32 *p_cyclecountold;
 
 extern int32 *p_external_control_cpu;
 
-extern const uint32 TimerPeriod;
+#define TimerPeriod 1097
+// extern const uint32 TimerPeriod;
 // Base period for the timer
 
 // registers:
@@ -230,7 +231,7 @@ extern uchar reg_s;
 
 //#define cycles (*p_cycles)
 //extern uint32 *p_cycles;
-extern uint32 cycles;
+extern uint32 cycles_;
 
 // Number of pc engine cycles elapsed since the resetting of the emulated console
 

@@ -499,6 +499,10 @@ inline void update_ui_fps() {
       float seconds = totalElapsedTime / (CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ * 1000000.0f);
       float fps = my_frame / seconds;
       printf("FPS:%f\n", fps);
+      if (cycles_ > 0)
+      {
+        printf("Further OpCodes must be inlined!\n");
+      }
 
       //printf("HEAP:0x%x, FPS:%f, BATTERY:%d [%d]\n", esp_get_free_heap_size(), fps, battery.millivolts, battery.percentage);
       
