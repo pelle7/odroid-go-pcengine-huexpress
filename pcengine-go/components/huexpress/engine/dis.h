@@ -6,6 +6,10 @@
 #ifndef _INCLUDE_DIS_H
 #define _INCLUDE_DIS_H
 
+#include "myadd.h"
+
+#ifndef MY_EXCLUDE
+
 #include "format.h"
 
 #ifdef DOS
@@ -48,5 +52,6 @@
 extern uchar running_mode;
 
 int disassemble();
+#endif
 
 #endif

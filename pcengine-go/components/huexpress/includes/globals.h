@@ -31,12 +31,14 @@ extern uchar * mmr_base[8];
 //
 // Globals for PCE CPU registers:
 //
-extern uint16  reg_pc;
+/*
+extern uint16  reg_pc_;
 extern uchar   reg_a;
 extern uchar   reg_x;
 extern uchar   reg_y;
 extern uchar   reg_p;
 extern uchar   reg_s;
+*/
 extern uchar * mmr;
 
 //

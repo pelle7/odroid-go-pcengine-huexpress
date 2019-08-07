@@ -1,6 +1,8 @@
 #ifndef _DJGPP_INCLUDE_FOLLOWOP_H
 #define _DJGPP_INCLUDE_FOLLOWOP_H
 
+#if 0
+
 // Declaration for functions used to know the following instruction
 
 #include "config.h"
@@ -67,5 +69,7 @@ uint16 follow_RTI(uint16 where);
 
 uint16 follow_RTS(uint16 where);
 // for RTS op
+
+#endif
 
 #endif

@@ -219,12 +219,19 @@ extern uchar *p_reg_p;
 extern uchar *p_reg_s;
 
 #else
-extern uint16 reg_pc;
-extern uchar reg_a;
-extern uchar reg_x;
-extern uchar reg_y;
-extern uchar reg_p;
-extern uchar reg_s;
+#define reg_pc reg_pc_
+#define reg_a reg_a_
+#define reg_x reg_x_
+#define reg_y reg_y_
+#define reg_p reg_p_
+#define reg_s reg_s_
+
+extern uint32 reg_pc_;
+extern uchar reg_a_;
+extern uchar reg_x_;
+extern uchar reg_y_;
+extern uchar reg_p_;
+extern uchar reg_s_;
 #endif
 
 // These are the main h6280 register, reg_p is the flag register

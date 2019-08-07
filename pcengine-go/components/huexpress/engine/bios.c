@@ -15,6 +15,15 @@
 #include "utils.h"
 #include "pce.h"
 
+#ifdef MY_EXCLUDE
+void handle_bios(void)
+{
+    printf("handle_bios: not implemented!\n");
+    abort();
+}
+
+#else
+
 #define get_8bit_addr(addr) Rd6502((uint16)(addr))
 #define put_8bit_addr(addr,byte) Wr6502((addr),(byte))
 
@@ -1160,3 +1169,5 @@ handle_bios()
 	}
 	return 0;
 }
+
+#endif

@@ -30,4 +30,6 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 
 #define MY_USE_FAST_RAM
 
+#define MY_EXCLUDE
+
 extern bool skipNextFrame;

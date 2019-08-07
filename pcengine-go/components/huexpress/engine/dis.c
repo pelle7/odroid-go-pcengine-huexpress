@@ -17,6 +17,8 @@
 
 #include "dis.h"
 
+#ifndef MY_EXCLUDE
+
 /* Way to accedate to the PC Engine memory
 
 uchar Op6502(register unsigned A) { register char __AUX;
@@ -446,3 +448,5 @@ disassemble()
 
 	return (0);					/* return value to appease compiler */
 }
+
+#endif

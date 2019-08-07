@@ -4,6 +4,8 @@
 #include "cleantypes.h"
 #include "followop.h"
 
+#ifndef MY_EXCLUDE
+
 /* addressing modes: */
 
 #define AM_IMPL      0			/* implicit              */
@@ -37,7 +39,6 @@ typedef struct mode_debug {
 } mode_struct_debug;
 
 /* now define table contents: */
-
 typedef struct op_debug {
 	int addr_mode;
 	const char *opname;
@@ -47,5 +48,6 @@ typedef struct op_debug {
 extern operation_debug optable_debug[256];
 
 extern mode_struct_debug addr_info_debug[MAX_MODES];
+#endif
 
 #endif

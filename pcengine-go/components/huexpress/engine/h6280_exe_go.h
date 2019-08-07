@@ -17,7 +17,15 @@ exe_go(void)
 #ifndef MY_h6280_INT_cycle_counter
     uint32 cyclecountold = 0;
 #endif
+    //uint32 cycles = 0;
     uint32 cycles = 0;
+
+// Slower!
+//#undef reg_pc
+  //  WORD_ALIGNED_ATTR uint16 reg_pc = reg_pc_;
+
+//#undef reg_a
+ //   uchar reg_a = 0;
 
     while (true) {
       ODROID_DEBUG_PERF_START2(debug_perf_total)

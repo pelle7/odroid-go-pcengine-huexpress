@@ -1,5 +1,7 @@
 #include "followop.h"
 
+#if 0
+
 uint16
 follow_straight(uint16 where)
 {
@@ -251,3 +253,4 @@ follow_RTS(uint16 where)
 	return (uint16) (sp_base[reg_s + 1] + 256 * sp_base[reg_s + 2] + 1);
 }
 
+#endif

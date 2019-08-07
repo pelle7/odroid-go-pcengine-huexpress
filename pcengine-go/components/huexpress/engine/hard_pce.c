@@ -97,12 +97,12 @@ uchar *p_reg_s;
 
 #else
 
-DRAM_ATTR uint16 reg_pc;
-DRAM_ATTR uchar reg_a;
-DRAM_ATTR uchar reg_x;
-DRAM_ATTR uchar reg_y;
-DRAM_ATTR uchar reg_p;
-DRAM_ATTR uchar reg_s;
+DRAM_ATTR uint32 reg_pc_;
+DRAM_ATTR uchar reg_a_;
+DRAM_ATTR uchar reg_x_;
+DRAM_ATTR uchar reg_y_;
+DRAM_ATTR uchar reg_p_;
+DRAM_ATTR uchar reg_s_;
 
 #endif
 
@@ -636,6 +636,8 @@ read_memory_arcade_card(uint16 A)
 		return IO_read(A);
 }
 
+#ifndef MY_EXCLUDE
+
 static char opcode_long_buffer[256];
 static uint16 opcode_long_position;
 
@@ -670,7 +672,6 @@ get_opcode_long()
 
 }
 
-
 void
 dump_pce_cpu_environment()
 {
@@ -699,3 +700,4 @@ dump_pce_cpu_environment()
 	Log("--------------------------------------------------------\n");
 
 }
+#endif

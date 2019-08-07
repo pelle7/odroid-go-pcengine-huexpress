@@ -1,6 +1,9 @@
 #include "optable.h"
 #include "dis.h"
 
+#ifdef MY_EXCLUDE
+#else
+
 /* A bit modified to include Break Points  : "BP?" at $?B */
 /* Beware, the name does matter, invalid opcodes got "???" as name or are BP */
 
@@ -562,3 +565,5 @@ mode_struct_debug addr_info_debug[MAX_MODES] = {
 	,							/* special 'TST' addressing mode  */
 	{7, &(xfer)}				/* special 7-byte transfer addressing mode  */
 };
+
+#endif

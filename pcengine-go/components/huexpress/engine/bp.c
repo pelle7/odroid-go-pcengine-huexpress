@@ -102,6 +102,32 @@ handle_bp13()
 	return handle_bp(13);
 }
 
+
+#ifdef MY_EXCLUDE
+
+int
+handle_bp14()
+{
+    return handle_bp(13);
+}
+
+int
+handle_bp15()
+{
+    return handle_bp(13);
+}
+
+int
+handle_bp(int nb_bp)
+{
+    printf("handle_bp: not implemented\n");
+    abort();
+    return 0;
+}
+
+
+#else
+
 int
 handle_bp(int nb_bp)
 {
@@ -188,3 +214,5 @@ handle_bp15()
 
 	return 0;
 }
+
+#endif
