@@ -1,4 +1,4 @@
-    ODROID_DEBUG_PERF_START2(debug_perf_part1)
+    ODROID_DEBUG_PERF_START2(debug_perf_part_refr)
     int X1, XW, Line;
     int x, y, h, offset;
 
@@ -95,4 +95,4 @@
                 h = 8;
         }
     }
-    ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_SPRITE_RefreshLine)
+    ODROID_DEBUG_PERF_INCR2(debug_perf_part_refr, ODROID_DEBUG_PERF_SPRITE_RefreshLine)

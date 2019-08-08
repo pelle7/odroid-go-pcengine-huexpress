@@ -7,7 +7,10 @@
             int Y1 = last_display_counter;
             int Y2 = display_counter;
             uchar bg = 0;
+            if (!skipNextFrame)
+            {
             #include "sprite_RefreshSpriteExact.h"
+            }
 #else
             RefreshSpriteExact(last_display_counter, display_counter - 1, 0);
 #endif
@@ -27,7 +30,10 @@
             int Y1 = last_display_counter;
             int Y2 = display_counter;
             uchar bg = 1;
+            if (!skipNextFrame)
+            {
             #include "sprite_RefreshSpriteExact.h"
+            }
 #else
             RefreshSpriteExact(last_display_counter, display_counter - 1, 1);
 #endif

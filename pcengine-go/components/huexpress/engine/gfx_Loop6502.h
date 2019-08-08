@@ -1,4 +1,4 @@
-    ODROID_DEBUG_PERF_START2(debug_perf_part1)
+    ODROID_DEBUG_PERF_START2(debug_perf_part_loop6502)
     uchar return_value = INT_NONE;
 
     io.vdc_status &= ~(VDC_RasHit | VDC_SATBfinish);
@@ -204,4 +204,4 @@ jump_CheckSprites:
             I = return_value;
         } else I = INT_NONE;
     } else I = INT_NONE;
-    ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_LOOP6502)
+    ODROID_DEBUG_PERF_INCR2(debug_perf_part_loop6502, ODROID_DEBUG_PERF_LOOP6502)

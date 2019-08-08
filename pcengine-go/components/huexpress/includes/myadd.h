@@ -19,7 +19,7 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 #define MY_INLINE_SPRITE_sp2pixel
 #define MY_INLINE_SPRITE_PutSpriteHflipMakeMask
 #define MY_INLINE_SPRITE_PutSpriteHflipM
-#define MY_INLINE_SPRITE_PutSpriteHflip
+//#define MY_INLINE_SPRITE_PutSpriteHflip *** BUG game impos...
 #define MY_INLINE_SPRITE_plane2pixel
 #define MY_INLINE_SPRITE_CheckSprites
 #define MY_INLINE_SPRITE_RefreshScreen
