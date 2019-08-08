@@ -709,5 +709,8 @@ exe_go(void)
 }
 #endif
 
-
+#ifdef MY_h6280_ON_CPU0
+#include "h6280_exe_go_multi.h"
+#else
 #include "h6280_exe_go.h"
+#endif

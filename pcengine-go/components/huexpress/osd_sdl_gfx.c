@@ -473,7 +473,9 @@ uint startTime;
 uint stopTime;
 uint totalElapsedTime;
 int my_frame;
+#ifdef MY_GFX_AS_TASK
 extern QueueHandle_t vidQueue;
+#endif
 extern uint8_t* framebuffer[2];
 uint8_t current_framebuffer = 0;
 extern uchar* XBuf;
@@ -569,8 +571,12 @@ osd_gfx_put_image_normal(void)
     if ((my_frame%frameskip)==1)
     {
     // printf("RES: (%dx%d)\n", io.screen_w, io.screen_h);
+#ifdef MY_GFX_AS_TASK
     xQueueSend(vidQueue, &osd_gfx_buffer, portMAX_DELAY);
     current_framebuffer = current_framebuffer ? 0 : 1;
+#else
+    ili9341_write_frame_pcengine_mode0(osd_gfx_buffer, my_palette);
+#endif
     XBuf = framebuffer[current_framebuffer];
     osd_gfx_buffer = XBuf + 32 + 64 * XBUF_WIDTH;
     skipNextFrame = true;

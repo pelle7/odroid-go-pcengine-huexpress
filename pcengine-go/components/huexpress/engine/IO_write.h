@@ -12,7 +12,7 @@
     case 0x0000:                /* VDC */
         switch (A & 3) {
         case 0:
-            io.vdc_reg = V & 31;
+            IO_VDC_active_set(V & 31)
             return;
         case 1:
             return;
@@ -53,7 +53,7 @@
 
             case BYR:           /* Vertical screen offset */
                 /*
-                   if (io.VDC[BYR].B.l == V)
+                   if (IO_VDC_08_BYR.B.l == V)
                    return;
                  */
 
@@ -64,10 +64,10 @@
                     oldScrollY = ScrollY;
                     oldScrollYDiff = ScrollYDiff;
                 }
-                io.VDC[BYR].B.l = V;
+                IO_VDC_08_BYR.B.l = V;
                 scroll = 1;
                 ScrollYDiff = scanline - 1;
-                ScrollYDiff -= io.VDC[VPR].B.h + io.VDC[VPR].B.l;
+                ScrollYDiff -= IO_VDC_0C_VPR.B.h + IO_VDC_0C_VPR.B.l;
 
 #if ENABLE_TRACING_DEEP_GFX
                 TRACE("ScrollY = %d (l), ", ScrollY);
@@ -76,7 +76,7 @@
             case BXR:           /* Horizontal screen offset */
 
                 /*
-                   if (io.VDC[BXR].B.l == V)
+                   if (IO_VDC_07_BXR.B.l == V)
                    return;
                  */
 
@@ -87,39 +87,39 @@
                     oldScrollY = ScrollY;
                     oldScrollYDiff = ScrollYDiff;
                 }
-                io.VDC[BXR].B.l = V;
+                IO_VDC_07_BXR.B.l = V;
                 scroll = 1;
                 return;
 
             case CR:
-                if (io.VDC[io.vdc_reg].B.l == V)
+                if (IO_VDC_active.B.l == V)
                     return;
                 save_gfx_context(0);
-                io.VDC[io.vdc_reg].B.l = V;
+                IO_VDC_active.B.l = V;
                 return;
 
             case VCR:
-                io.VDC[io.vdc_reg].B.l = V;
+                IO_VDC_active.B.l = V;
                 gfx_need_video_mode_change = 1;
                 return;
 
             case HSR:
-                io.VDC[io.vdc_reg].B.l = V;
+                IO_VDC_active.B.l = V;
                 gfx_need_video_mode_change = 1;
                 return;
 
             case VPR:
-                io.VDC[io.vdc_reg].B.l = V;
+                IO_VDC_active.B.l = V;
                 gfx_need_video_mode_change = 1;
                 return;
 
             case VDW:
-                io.VDC[io.vdc_reg].B.l = V;
+                IO_VDC_active.B.l = V;
                 gfx_need_video_mode_change = 1;
                 return;
             }
 
-            io.VDC[io.vdc_reg].B.l = V;
+            IO_VDC_active.B.l = V;
             // all others reg just need to get the value, without additional stuff
 
 #if ENABLE_TRACING_DEEP_GFX
@@ -138,69 +138,69 @@
             switch (io.vdc_reg) {
             case VWR:           /* Write to mem */
                 /* Writing to hi byte actually perform the action */
-                VRAM[io.VDC[MAWR].W * 2] = io.vdc_ratch;
-                VRAM[io.VDC[MAWR].W * 2 + 1] = V;
+                VRAM[IO_VDC_00_MAWR.W * 2] = io.vdc_ratch;
+                VRAM[IO_VDC_00_MAWR.W * 2 + 1] = V;
 
-                vchange[io.VDC[MAWR].W / 16] = 1;
-                vchanges[io.VDC[MAWR].W / 64] = 1;
+                vchange[IO_VDC_00_MAWR.W / 16] = 1;
+                vchanges[IO_VDC_00_MAWR.W / 64] = 1;
 
-                io.VDC[MAWR].W += io.vdc_inc;
+                IO_VDC_00_MAWR.W += io.vdc_inc;
 
                 /* vdc_ratch shouldn't be reset between writes */
                 // io.vdc_ratch = 0;
                 return;
 
             case VCR:
-                io.VDC[io.vdc_reg].B.h = V;
+                IO_VDC_active.B.h = V;
                 gfx_need_video_mode_change = 1;
                 return;
 
             case HSR:
-                io.VDC[io.vdc_reg].B.h = V;
+                IO_VDC_active.B.h = V;
                 gfx_need_video_mode_change = 1;
                 return;
 
             case VPR:
-                io.VDC[io.vdc_reg].B.h = V;
+                IO_VDC_active.B.h = V;
                 gfx_need_video_mode_change = 1;
                 return;
 
             case VDW:           /* screen height */
-                io.VDC[io.vdc_reg].B.h = V;
+                IO_VDC_active.B.h = V;
                 gfx_need_video_mode_change = 1;
                 return;
 
             case LENR:          /* DMA transfert */
 
-                io.VDC[LENR].B.h = V;
+                IO_VDC_12_LENR.B.h = V;
 
                 {               // black-- 's code
 
-                    int sourcecount = (io.VDC[DCR].W & 8) ? -1 : 1;
-                    int destcount = (io.VDC[DCR].W & 4) ? -1 : 1;
+                    int sourcecount = (IO_VDC_0F_DCR.W & 8) ? -1 : 1;
+                    int destcount = (IO_VDC_0F_DCR.W & 4) ? -1 : 1;
 
-                    int source = io.VDC[SOUR].W * 2;
-                    int dest = io.VDC[DISTR].W * 2;
+                    int source = IO_VDC_10_SOUR.W * 2;
+                    int dest = IO_VDC_11_DISTR.W * 2;
 
                     int i;
 
-                    for (i = 0; i < (io.VDC[LENR].W + 1) * 2; i++) {
+                    for (i = 0; i < (IO_VDC_12_LENR.W + 1) * 2; i++) {
                         *(VRAM + dest) = *(VRAM + source);
                         dest += destcount;
                         source += sourcecount;
                     }
 
                     /*
-                       io.VDC[SOUR].W = source;
-                       io.VDC[DISTR].W = dest;
+                       IO_VDC_10_SOUR.W = source;
+                       IO_VDC_11_DISTR.W = dest;
                      */
                     // Erich Kitzmuller fix follows
-                    io.VDC[SOUR].W = source / 2;
-                    io.VDC[DISTR].W = dest / 2;
+                    IO_VDC_10_SOUR.W = source / 2;
+                    IO_VDC_11_DISTR.W = dest / 2;
 
                 }
 
-                io.VDC[LENR].W = 0xFFFF;
+                IO_VDC_12_LENR.W = 0xFFFF;
 
                 memset(vchange, 1, VRAMSIZE / 32);
                 memset(vchanges, 1, VRAMSIZE / 128);
@@ -215,13 +215,13 @@
                 {
                     static uchar incsize[] = { 1, 32, 64, 128 };
                     /*
-                       if (io.VDC[CR].B.h == V)
+                       if (IO_VDC_05_CR.B.h == V)
                        return;
                      */
                     save_gfx_context(0);
 
                     io.vdc_inc = incsize[(V >> 3) & 3];
-                    io.VDC[CR].B.h = V;
+                    IO_VDC_05_CR.B.h = V;
                 }
                 break;
             case HDR:           /* Horizontal display end */
@@ -236,7 +236,7 @@
             case BYR:           /* Vertical screen offset */
 
                 /*
-                   if (io.VDC[BYR].B.h == (V & 1))
+                   if (IO_VDC_08_BYR.B.h == (V & 1))
                    return;
                  */
 
@@ -247,14 +247,14 @@
                     oldScrollY = ScrollY;
                     oldScrollYDiff = ScrollYDiff;
                 }
-                io.VDC[BYR].B.h = V & 1;
+                IO_VDC_08_BYR.B.h = V & 1;
                 scroll = 1;
                 ScrollYDiff = scanline - 1;
-                ScrollYDiff -= io.VDC[VPR].B.h + io.VDC[VPR].B.l;
+                ScrollYDiff -= IO_VDC_0C_VPR.B.h + IO_VDC_0C_VPR.B.l;
 #if ENABLE_TRACING_GFX
                 if (ScrollYDiff < 0)
                     TRACE("ScrollYDiff went negative when substraction VPR.h/.l (%d,%d)\n",
-                        io.VDC[VPR].B.h, io.VDC[VPR].B.l);
+                        IO_VDC_0C_VPR.B.h, IO_VDC_0C_VPR.B.l);
 #endif
 
 #if ENABLE_TRACING_DEEP_GFX
@@ -264,14 +264,14 @@
                 return;
 
             case SATB:          /* DMA from VRAM to SATB */
-                io.VDC[SATB].B.h = V;
+                IO_VDC_13_SATB.B.h = V;
                 io.vdc_satb = 1;
                 io.vdc_status &= ~VDC_SATBfinish;
                 return;
 
             case BXR:           /* Horizontal screen offset */
 
-                if (io.VDC[BXR].B.h == (V & 3))
+                if (IO_VDC_07_BXR.B.h == (V & 3))
                     return;
 
                 save_gfx_context(0);
@@ -282,11 +282,11 @@
                     oldScrollYDiff = ScrollYDiff;
                 }
 
-                io.VDC[BXR].B.h = V & 3;
+                IO_VDC_07_BXR.B.h = V & 3;
                 scroll = 1;
                 return;
             }
-            io.VDC[io.vdc_reg].B.h = V;
+            IO_VDC_active.B.h = V;
 
 #ifndef FINAL_RELEASE
             if (io.vdc_reg > 19) {

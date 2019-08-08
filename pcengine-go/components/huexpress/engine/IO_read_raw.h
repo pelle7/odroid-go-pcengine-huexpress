@@ -23,16 +23,16 @@
             return 0;
         case 2:
             if (io.vdc_reg == VRR)
-                return VRAM[io.VDC[MARR].W * 2];
+                return VRAM[IO_VDC_01_MARR.W * 2];
             else
-                return io.VDC[io.vdc_reg].B.l;
+                return IO_VDC_active.B.l;
         case 3:
             if (io.vdc_reg == VRR) {
-                ret = VRAM[io.VDC[MARR].W * 2 + 1];
-                io.VDC[MARR].W += io.vdc_inc;
+                ret = VRAM[IO_VDC_01_MARR.W * 2 + 1];
+                IO_VDC_01_MARR.W += io.vdc_inc;
                 return ret;
             } else
-                return io.VDC[io.vdc_reg].B.h;
+                return IO_VDC_active.B.h;
         }
         break;
 

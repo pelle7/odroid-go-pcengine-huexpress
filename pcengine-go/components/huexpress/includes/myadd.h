@@ -27,9 +27,14 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 //#define MY_h6280_flnz_list
 //#define MY_INLINE_IO_ReadWrite
 #define MY_h6280_INT_cycle_counter
+//#define MY_h6280_ON_CPU0  ;-)
+#define MY_GFX_AS_TASK
+#define MY_VDC_VARS
 
 #define MY_USE_FAST_RAM
 
 #define MY_EXCLUDE
+
+// #define MY_REALLOC_MEMORY_SIDEARMS
 
 extern bool skipNextFrame;

@@ -16,6 +16,7 @@
 #endif
         }
 #ifdef MY_INLINE_SPRITE
+if (!skipNextFrame)
         {
         int Y1 = last_display_counter;
         int Y2 = display_counter - 1;

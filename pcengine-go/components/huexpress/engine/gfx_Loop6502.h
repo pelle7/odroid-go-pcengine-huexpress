@@ -19,18 +19,18 @@
     }
     // Test raster hit
     if (RasHitON) {
-        if (((io.VDC[RCR].W & 0x3FF) >= 0x40)
-            && ((io.VDC[RCR].W & 0x3FF) <= 0x146)) {
-            uint16 temp_rcr = (uint16) ((io.VDC[RCR].W & 0x3FF) - 0x40);
+        if (((IO_VDC_06_RCR.W & 0x3FF) >= 0x40)
+            && ((IO_VDC_06_RCR.W & 0x3FF) <= 0x146)) {
+            uint16 temp_rcr = (uint16) ((IO_VDC_06_RCR.W & 0x3FF) - 0x40);
 
             if (scanline
-                == (temp_rcr + io.VDC[VPR].B.l + io.VDC[VPR].B.h) % 263) {
+                == (temp_rcr + IO_VDC_0C_VPR.B.l + IO_VDC_0C_VPR.B.h) % 263) {
                 // printf("\n---------------------\nRASTER HIT (%d)\n----------------------\n", scanline);
                 io.vdc_status |= VDC_RasHit;
                 return_value = INT_IRQ;
             }
         } else {
-            // printf("Raster counter out of bounds (%d)\n", io.VDC[RCR].W);
+            // printf("Raster counter out of bounds (%d)\n", IO_VDC_06_RCR.W);
         }
     }
     //  else
@@ -158,11 +158,11 @@ jump_CheckSprites:
             }
 
             /* VRAM to SATB DMA */
-            if (io.vdc_satb == 1 || io.VDC[DCR].W & 0x0010) {
+            if (io.vdc_satb == 1 || IO_VDC_0F_DCR.W & 0x0010) {
 #if defined(WORDS_BIGENDIAN)
-                swab(VRAM + io.VDC[SATB].W * 2, SPRAM, 64 * 8);
+                swab(VRAM + IO_VDC_13_SATB.W * 2, SPRAM, 64 * 8);
 #else
-                memcpy(SPRAM, VRAM + io.VDC[SATB].W * 2, 64 * 8);
+                memcpy(SPRAM, VRAM + IO_VDC_13_SATB.W * 2, 64 * 8);
 #endif
                 io.vdc_satb = 1;
                 io.vdc_status &= ~VDC_SATBfinish;

@@ -1640,7 +1640,7 @@ InitPCE(char *name)
 		if (offset > 0)
 			ROMMapW[0xE1][offset & 0x1fff] = new_val;
 	}
-	/*
+#ifdef MY_REALLOC_MEMORY_SIDEARMS
 	{ // SIDE Arms: 46,5 -> 47
     // exe_go: bank_set: 7,0 -> 3F89BDA4
     void *mem_fast = my_special_alloc(true, 1, 0x2000);
@@ -1650,7 +1650,7 @@ InitPCE(char *name)
     ROMMapR[0] = mem_fast;
     ROMMapW[0] = mem_fast;
     }
-    */
+#endif
 
 	return 0;
 }
@@ -1752,3 +1752,35 @@ extern void WriteBuffer(char *, int, unsigned);
 
 
 FILE *out_snd;
+
+
+#ifdef MY_VDC_VARS
+
+// DRAM_ATTR
+// WORD_ALIGNED_ATTR
+
+#define VAR_PREFIX DRAM_ATTR WORD_ALIGNED_ATTR
+
+VAR_PREFIX pair IO_VDC_00_MAWR ;
+VAR_PREFIX pair IO_VDC_01_MARR ;
+VAR_PREFIX pair IO_VDC_02_VWR  ;
+VAR_PREFIX pair IO_VDC_03_vdc3 ;
+VAR_PREFIX pair IO_VDC_04_vdc4 ;
+VAR_PREFIX pair IO_VDC_05_CR   ;
+VAR_PREFIX pair IO_VDC_06_RCR  ;
+VAR_PREFIX pair IO_VDC_07_BXR  ;
+VAR_PREFIX pair IO_VDC_08_BYR  ;
+VAR_PREFIX pair IO_VDC_09_MWR  ;
+VAR_PREFIX pair IO_VDC_0A_HSR  ;
+VAR_PREFIX pair IO_VDC_0B_HDR  ;
+VAR_PREFIX pair IO_VDC_0C_VPR  ;
+VAR_PREFIX pair IO_VDC_0D_VDW  ;
+VAR_PREFIX pair IO_VDC_0E_VCR  ;
+VAR_PREFIX pair IO_VDC_0F_DCR  ;
+VAR_PREFIX pair IO_VDC_10_SOUR ;
+VAR_PREFIX pair IO_VDC_11_DISTR;
+VAR_PREFIX pair IO_VDC_12_LENR ;
+VAR_PREFIX pair IO_VDC_13_SATB ;
+VAR_PREFIX pair IO_VDC_14      ;
+VAR_PREFIX pair *IO_VDC_active_ref;
+#endif

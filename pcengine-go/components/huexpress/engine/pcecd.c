@@ -431,7 +431,7 @@ pce_cd_handle_read_1800(uint16 A)
 	case 0x0A:
 #if ENABLE_TRACING_CD
 		Log("HARD : Read %x from ADPCM[%04X] to VRAM : 0X%04X\n",
-			PCM[io.adpcm_rptr], io.adpcm_rptr, io.VDC[MAWR].W * 2);
+			PCM[io.adpcm_rptr], io.adpcm_rptr, IO_VDC_00_MAWR.W * 2);
 #endif
 
 		if (!io.adpcm_firstread)

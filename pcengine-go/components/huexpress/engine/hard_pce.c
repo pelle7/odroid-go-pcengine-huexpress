@@ -162,6 +162,7 @@ hard_reset_io(void)
     {
        memset(io.psg_da_data[i], 0, PSG_DIRECT_ACCESS_BUFSIZE);
     }
+    IO_VDC_reset
 }
 
 /**

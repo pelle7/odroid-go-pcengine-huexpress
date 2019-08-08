@@ -41,11 +41,13 @@ const char* SD_BASE_PATH = "/sd";
 #define TASK_BREAK (void*)1
 uchar* osd_gfx_buffer = NULL;
 uchar* XBuf;
+#ifdef MY_GFX_AS_TASK
 QueueHandle_t vidQueue;
 TaskHandle_t videoTaskHandle;
+volatile bool videoTaskIsRunning = false;
+#endif
 uint8_t* framebuffer[2];
 uint16_t* my_palette;
-volatile bool videoTaskIsRunning = false;
 
 #define AUDIO_SAMPLE_RATE (22050)
 
@@ -77,6 +79,8 @@ void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned long s
     if (!rc) { dump_heap_info_short(); abort(); }
     return rc;
 }
+
+#ifdef MY_GFX_AS_TASK
 
 #define VID_TASK(func) \
     uint8_t* param; \
@@ -116,6 +120,8 @@ NOINLINE void update_display_task()
     printf("VIDEO: Task: Start done\n");
 }
 
+#endif
+
 void DoMenuHome(bool save)
 {
     uint8_t* param = TASK_BREAK;
@@ -129,10 +135,10 @@ void DoMenuHome(bool save)
 
     // Stop tasks
     printf("PowerDown: stopping tasks.\n");
-
+#ifdef MY_GFX_AS_TASK
     xQueueSend(vidQueue, &param, portMAX_DELAY);
     while (videoTaskIsRunning) { vTaskDelay(1); }
-
+#endif
     //DoReboot(save);
     DoReboot(false);
 }
@@ -215,16 +221,18 @@ NOINLINE void app_init(void)
     
     XBuf = framebuffer[0];
     osd_gfx_buffer = XBuf + 32 + 64 * XBUF_WIDTH;
-    
+#ifdef MY_GFX_AS_TASK
     vidQueue = xQueueCreate(1, sizeof(uint16_t*));
+#endif
     // void QuickSaveSetBuffer(void* data);
     
     odroid_audio_init(odroid_settings_AudioSink_get(), AUDIO_SAMPLE_RATE);
     
     InitPCE(rom_file);
     osd_init_machine();
-    
+#ifdef MY_GFX_AS_TASK
     update_display_task();
+#endif
 }
 
 NOINLINE void app_loop(void)

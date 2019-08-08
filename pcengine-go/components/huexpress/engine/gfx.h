@@ -33,10 +33,13 @@ struct generic_rect {
 };
 
 typedef struct {
-	typeof(io.VDC[BXR].W) scroll_x;
-	typeof(io.VDC[BYR].W) scroll_y;
+	//typeof(IO_VDC_07_BXR.W) scroll_x;
+	//typeof(IO_VDC_08_BYR.W) scroll_y;
+	uint16 scroll_x;
+	uint16 scroll_y;
 	int scroll_y_diff;
-	typeof(io.VDC[CR].W) cr;
+	//typeof(IO_VDC_05_CR.W) cr;
+	uint16 cr;
 } gfx_context;
 
 
@@ -82,7 +85,7 @@ void save_gfx_context_(int slot_number);
     destination_context->scroll_x = ScrollX; \
     destination_context->scroll_y = ScrollY; \
     destination_context->scroll_y_diff = ScrollYDiff; \
-    destination_context->cr = io.VDC[CR].W; \
+    destination_context->cr = IO_VDC_05_CR.W; \
     } while (false);
 
 #define load_gfx_context(slot_number) \
@@ -95,14 +98,21 @@ void save_gfx_context_(int slot_number);
     ScrollX = source_context->scroll_x; \
     ScrollY = source_context->scroll_y; \
     ScrollYDiff = source_context->scroll_y_diff; \
-    io.VDC[CR].W = source_context->cr; \
+    IO_VDC_05_CR.W = source_context->cr; \
     TRACE("Restoring context %d, scroll = (%d,%d,%d), CR = 0x%02d\n", \
-        slot_number, ScrollX, ScrollY, ScrollYDiff, io.VDC[CR].W); \
+        slot_number, ScrollX, ScrollY, ScrollYDiff, IO_VDC_05_CR.W); \
     }
+
+#define gfx_init() \
+    UCount = 0; \
+    gfx_need_video_mode_change = 0; \
+    gfx_need_redraw = 0; \
+    IO_VDC_05_CR.W = 0;
 
 #else
 #define save_gfx_context(slot_number) save_gfx_context_(slot_number)
 #define load_gfx_context(slot_number) load_gfx_context_(slot_number)
+void gfx_init();
 #endif
 
 int start_dump_video();
@@ -111,7 +121,6 @@ void dump_video_frame();
 
 void dump_rgb_frame(char *output_buffer);
 
-void gfx_init();
 extern int UCount;
 extern int gfx_need_redraw;
 

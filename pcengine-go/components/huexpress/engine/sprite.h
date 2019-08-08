@@ -48,8 +48,9 @@ extern uchar SPONSwitch;
 
 //#define ScrollX   io.scroll_x
 //#define ScrollY io.scroll_y
-#define	ScrollX	io.VDC[BXR].W
-#define	ScrollY	io.VDC[BYR].W
+#define	ScrollX	IO_VDC_07_BXR.W
+#define	ScrollY	IO_VDC_08_BYR.W
+
 extern int ScrollYDiff;
 
 extern int oldScrollX;

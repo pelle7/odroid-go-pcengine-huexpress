@@ -143,10 +143,10 @@ change_pce_screen_height()
 
 	int cur_display;
 
-	int temp_vds = io.VDC[VPR].B.h;
-	int temp_vsw = io.VDC[VPR].B.l;
-	int temp_vdw = (int) io.VDC[VDW].W;
-	int temp_vcr = (int) io.VDC[VCR].W;
+	int temp_vds = IO_VDC_0C_VPR.B.h;
+	int temp_vsw = IO_VDC_0C_VPR.B.l;
+	int temp_vdw = (int) IO_VDC_0D_VDW.W;
+	int temp_vcr = (int) IO_VDC_0E_VCR.W;
 
 #if ENABLE_TRACING_GFX
 	TRACE("GFX: Changing pce screen mode\n"
@@ -211,6 +211,8 @@ int UCount = 0;
 //! Whether we should change video mode after drawing the current frame
 int gfx_need_video_mode_change = 0;
 
+#ifndef MY_INLINE_GFX
+
 void gfx_init()
 {
     UCount = 0;
@@ -231,7 +233,7 @@ save_gfx_context_(int slot_number)
 		   if ((destination_context->scroll_x == ScrollX) &&
 		   (destination_context->scroll_y == ScrollY) &&
 		   (destination_context->scroll_y_diff == ScrollYDiff) &&
-		   (destination_context->cr == io.VDC[CR].W)) {
+		   (destination_context->cr == IO_VDC_05_CR.W)) {
 
 		   #if ENABLE_TRACING_GFX
 		   TRACE("Canceled primary context saving, nothing changed");
@@ -257,12 +259,12 @@ save_gfx_context_(int slot_number)
 	}
 
 	TRACE("Saving context %d, scroll = (%d,%d,%d), CR = 0x%02d\n",
-		slot_number, ScrollX, ScrollY, ScrollYDiff, io.VDC[CR].W);
+		slot_number, ScrollX, ScrollY, ScrollYDiff, IO_VDC_05_CR.W);
 
 	destination_context->scroll_x = ScrollX;
 	destination_context->scroll_y = ScrollY;
 	destination_context->scroll_y_diff = ScrollYDiff;
-	destination_context->cr = io.VDC[CR].W;
+	destination_context->cr = IO_VDC_05_CR.W;
 }
 
 
@@ -283,12 +285,12 @@ load_gfx_context_(int slot_number)
 	ScrollX = source_context->scroll_x;
 	ScrollY = source_context->scroll_y;
 	ScrollYDiff = source_context->scroll_y_diff;
-	io.VDC[CR].W = source_context->cr;
+	IO_VDC_05_CR.W = source_context->cr;
 
 	TRACE("Restoring context %d, scroll = (%d,%d,%d), CR = 0x%02d\n",
-		slot_number, ScrollX, ScrollY, ScrollYDiff, io.VDC[CR].W);
+		slot_number, ScrollX, ScrollY, ScrollYDiff, IO_VDC_05_CR.W);
 }
-
+#endif
 
 #ifndef MY_INLINE_GFX
 //! render lines
@@ -360,18 +362,18 @@ Loop6502()
 	}
 	// Test raster hit
 	if (RasHitON) {
-		if (((io.VDC[RCR].W & 0x3FF) >= 0x40)
-			&& ((io.VDC[RCR].W & 0x3FF) <= 0x146)) {
-			uint16 temp_rcr = (uint16) ((io.VDC[RCR].W & 0x3FF) - 0x40);
+		if (((IO_VDC_06_RCR.W & 0x3FF) >= 0x40)
+			&& ((IO_VDC_06_RCR.W & 0x3FF) <= 0x146)) {
+			uint16 temp_rcr = (uint16) ((IO_VDC_06_RCR.W & 0x3FF) - 0x40);
 
 			if (scanline
-				== (temp_rcr + io.VDC[VPR].B.l + io.VDC[VPR].B.h) % 263) {
+				== (temp_rcr + IO_VDC_0C_VPR.B.l + IO_VDC_0C_VPR.B.h) % 263) {
 				// printf("\n---------------------\nRASTER HIT (%d)\n----------------------\n", scanline);
 				io.vdc_status |= VDC_RasHit;
 				return_value = INT_IRQ;
 			}
 		} else {
-			// printf("Raster counter out of bounds (%d)\n", io.VDC[RCR].W);
+			// printf("Raster counter out of bounds (%d)\n", IO_VDC_06_RCR.W);
 		}
 	}
 	//  else
@@ -464,11 +466,11 @@ Loop6502()
 			}
 
 			/* VRAM to SATB DMA */
-			if (io.vdc_satb == 1 || io.VDC[DCR].W & 0x0010) {
+			if (io.vdc_satb == 1 || IO_VDC_0F_DCR.W & 0x0010) {
 #if defined(WORDS_BIGENDIAN)
-				swab(VRAM + io.VDC[SATB].W * 2, SPRAM, 64 * 8);
+				swab(VRAM + IO_VDC_13_SATB.W * 2, SPRAM, 64 * 8);
 #else
-				memcpy(SPRAM, VRAM + io.VDC[SATB].W * 2, 64 * 8);
+				memcpy(SPRAM, VRAM + IO_VDC_13_SATB.W * 2, 64 * 8);
 #endif
 				io.vdc_satb = 1;
 				io.vdc_status &= ~VDC_SATBfinish;

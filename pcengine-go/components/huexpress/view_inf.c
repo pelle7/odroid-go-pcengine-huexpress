@@ -11,6 +11,7 @@
 
 #include "view_inf.h"
 
+#ifndef MY_EXCLUDE
 
 /* Variable section */
 
@@ -108,7 +109,7 @@ display_cd_var ()
 
   textoutshadow (screen, font, tmp_buf, blit_x, blit_y + 150, 3, 2, 1, 1);
 
-  sprintf (tmp_buf, "  VRAM WRITE PTR : %04X", io.VDC[MAWR].W * 2);
+  sprintf (tmp_buf, "  VRAM WRITE PTR : %04X", IO_VDC_00_MAWR.W * 2);
 
   textoutshadow (screen, font, tmp_buf, blit_x, blit_y + 160, 3, 2, 1, 1);
 
@@ -414,3 +415,5 @@ view_info ()
 #endif
   return;
 }
+
+#endif
