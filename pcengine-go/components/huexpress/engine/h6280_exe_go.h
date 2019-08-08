@@ -31,20 +31,22 @@ exe_go(void)
       ODROID_DEBUG_PERF_START2(debug_perf_total)
 
       ODROID_DEBUG_PERF_START2(debug_perf_part1)
-
+      while (cycles<=455)
+      {
 #ifdef USE_INSTR_SWITCH
         #include "h6280_instr_switch.h"
 #else
         /*err =*/ (*optable_runtime[PageR[reg_pc >> 13][reg_pc]].func_exe) ();
 #endif
+      }
 
       ODROID_DEBUG_PERF_INCR2(debug_perf_part1, ODROID_DEBUG_PERF_CPU)
 
         // HSYNC stuff - count cycles:
-        if (cycles > 455) {
+        /*if (cycles > 455) */ {
 
             CycleNew += cycles;
-            cycles -= 455;
+            // cycles -= 455;
             // scanline++;
 
             // Log("Calling periodic handler\n");
@@ -76,7 +78,7 @@ exe_go(void)
 #endif
 
             ODROID_DEBUG_PERF_INCR2(debug_perf_int, ODROID_DEBUG_PERF_INT)
-        } else {
+        } /*else*/ {
             ODROID_DEBUG_PERF_START2(debug_perf_int2)
 #ifdef MY_h6280_INT_cycle_counter
             if (CycleNew  >= TimerPeriod) {
