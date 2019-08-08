@@ -184,7 +184,17 @@
     reg_pc += 2; }
 
 
-// #define _OPCODE_rol_abs(offset_)
+#define _OPCODE_rol_abs(offset_) { \
+    uchar flg_tmp = (reg_p & FL_C) ? 1 : 0; \
+    uint16 temp_addr = get_16bit_addr(reg_pc + 1) + offset_; \
+    uchar temp1 = get_8bit_addr(temp_addr); \
+    uchar temp = (temp1 << 1) + flg_tmp; \
+    reg_p = (reg_p & ~(FL_N | FL_T | FL_Z | FL_C)) \
+        | ((temp1 & 0x80) ? FL_C : 0) \
+        | flnz_list_get(temp); \
+    cycles += 7; \
+    put_8bit_addr(temp_addr, temp); \
+    reg_pc += 3; }
 
 
 #define _OPCODE_rol_zp(offset_) { \
@@ -238,6 +248,18 @@
         cycles += cycles_add2; \
     } \
     reg_pc += reg_pc_add;
+
+#define _OPCODE_ror_abs_(offset_) { \
+    uchar flg_tmp = (reg_p & FL_C) ? 0x80 : 0; \
+    uint16 temp_addr = get_16bit_addr(reg_pc + 1) + offset_; \
+    uchar temp1 = get_8bit_addr(temp_addr); \
+    uchar temp = (temp1 / 2) + flg_tmp; \
+    reg_p = (reg_p & ~(FL_N | FL_T | FL_Z | FL_C)) \
+        | ((temp1 & 0x01) ? FL_C : 0) \
+        | flnz_list_get(temp); \
+    cycles += 7; \
+    put_8bit_addr(temp_addr, temp); \
+    reg_pc += 3; } \
 
 #define _OPCODE_ror_zp_(offset_) { \
     uchar flg_tmp = (reg_p & FL_C) ? 0x80 : 0; \
@@ -356,6 +378,17 @@
     } \
     reg_pc += reg_pc_add; }
 
+#define _OPCODE_lsr_abs_(offset_) { \
+    uint16 temp_addr = get_16bit_addr(reg_pc + 1) + offset_; \
+    uchar temp1 = get_8bit_addr(temp_addr); \
+    uchar temp = temp1 / 2; \
+    reg_p = (reg_p & ~(FL_N | FL_T | FL_Z | FL_C)) \
+        | ((temp1 & 1) ? FL_C : 0) \
+        | flnz_list_get(temp); \
+    cycles += 7; \
+    put_8bit_addr(temp_addr, temp); \
+    reg_pc += 3; } \
+
 #define _OPCODE_lsr_zp_(offset_) { \
     uchar zp_addr = imm_operand(reg_pc + 1) + offset_; \
     uchar temp1 = get_8bit_zp(zp_addr); \
@@ -390,5 +423,15 @@
     put_8bit_zp(temp, get_8bit_zp(temp) & (~mask_)); \
     reg_pc += 2; \
     cycles += 7; }
+
+#define _OPCODE_tstins_(operand_, cycles_add, reg_pc_add) { \
+    uchar imm = imm_operand(reg_pc + 1); \
+    uchar temp = operand_(reg_pc + 2); \
+    reg_p = (reg_p & ~(FL_N | FL_V | FL_T | FL_Z)) \
+        | ((temp & 0x80) ? FL_N : 0) \
+        | ((temp & 0x40) ? FL_V : 0) \
+        | ((temp & imm) ? 0 : FL_Z); \
+    cycles += cycles_add; \
+    reg_pc += reg_pc_add; }
 
 #endif

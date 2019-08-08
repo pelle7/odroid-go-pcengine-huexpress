@@ -43,8 +43,7 @@ static _used[256];
         break;
     case 0x01:
         // {ora_zpindx, AM_ZPINDX, "ORA"}
-        OP_CALL_THROUGH_LOOKUP
-        //_OPCODE_ora__(zpindx_operand, 10, 7, _)
+        _OPCODE_ora__(zpindx_operand, 10, 7, 2)
         break;
     case 0x02: // aaaa
         // {sxy, AM_IMPL, "SXY"}
@@ -115,7 +114,19 @@ static _used[256];
         break;
     case 0x0C:
         // {tsb_abs, AM_ABS, "TSB"}
-        OP_CALL_THROUGH_LOOKUP 
+        {
+        uint16 abs_addr = get_16bit_addr(reg_pc + 1);
+        uchar temp = get_8bit_addr(abs_addr);
+        uchar temp1 = reg_a | temp;
+    
+        reg_p = (reg_p & ~(FL_N | FL_V | FL_T | FL_Z))
+            | ((temp1 & 0x80) ? FL_N : 0)
+            | ((temp1 & 0x40) ? FL_V : 0)
+            | ((temp & reg_a) ? 0 : FL_Z);
+        cycles += 7;
+        put_8bit_addr(abs_addr, temp1);
+        reg_pc += 3;
+        } 
         break;
     case 0x0D:
         // {ora_abs, AM_ABS, "ORA"}
@@ -123,8 +134,7 @@ static _used[256];
         break;
     case 0x0E:
         // {asl_abs, AM_ABS, "ASL"}
-        OP_CALL_THROUGH_LOOKUP
-        // _OPCODE_asl_abs(0) 
+        _OPCODE_asl_abs(0) 
         break;
     case 0x0F:
         // {bbr0, AM_PSREL, "BBR0"}
@@ -149,7 +159,19 @@ static _used[256];
         break;
     case 0x14:
         // {trb_zp, AM_ZP, "TRB"}
-        OP_CALL_THROUGH_LOOKUP 
+        {
+        uchar zp_addr = imm_operand(reg_pc + 1);
+        uchar temp = get_8bit_zp(zp_addr);
+        uchar temp1 = (~reg_a) & temp;
+    
+        reg_p = (reg_p & ~(FL_N | FL_V | FL_T | FL_Z))
+            | ((temp1 & 0x80) ? FL_N : 0)
+            | ((temp1 & 0x40) ? FL_V : 0)
+            | ((temp & reg_a) ? 0 : FL_Z);
+        put_8bit_zp(zp_addr, temp1);
+        reg_pc += 2;
+        cycles += 6;
+        } 
         break;
     case 0x15:
         // {ora_zpx, AM_ZPX, "ORA"}
@@ -163,7 +185,7 @@ static _used[256];
         break;
     case 0x17:
         // {rmb1, AM_ZP, "RMB1"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_rmb_(0x02) 
         break;
     case 0x18:
         // {clc, AM_IMPL, "CLC"}
@@ -192,13 +214,11 @@ static _used[256];
         break;
     case 0x1D:
         // {ora_absx, AM_ABSX, "ORA"}
-        OP_CALL_THROUGH_LOOKUP
-        //_OPCODE_ora__(zpindy_operand, 10, 7, _) 
+        _OPCODE_ora__(absx_operand, 8, 5, 3) 
         break;
     case 0x1E:
         // {asl_absx, AM_ABSX, "ASL"}
-        OP_CALL_THROUGH_LOOKUP
-        //_OPCODE_asl_abs(reg_x) 
+        _OPCODE_asl_abs(reg_x) 
         break;
     case 0x1F:
         // {bbr1, AM_PSREL, "BBR1"}
@@ -233,7 +253,7 @@ static _used[256];
         break;
     case 0x24:
         // {bit_zp, AM_ZP, "BIT"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_bit__(zp_operand, 4, 2) 
         break;
     case 0x25:
         // {and_zp, AM_ZP, "AND"}
@@ -245,7 +265,7 @@ static _used[256];
         break;
     case 0x27:
         // {rmb2, AM_ZP, "RMB2"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_rmb_(0x04) 
         break;
     case 0x28:
         // {plp, AM_IMPL, "PLP"}
@@ -281,11 +301,11 @@ static _used[256];
         break;
     case 0x2D:
         // {and_abs, AM_ABS, "AND"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_and__(abs_operand, 8, 5, 3) 
         break;
     case 0x2E:
         // {rol_abs, AM_ABS, "ROL"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_rol_abs(0) 
         break;
     case 0x2F: // aaaa
         // {bbr2, AM_PSREL, "BBR2"}
@@ -314,7 +334,7 @@ static _used[256];
         break;
     case 0x35:
         // {and_zpx, AM_ZPX, "AND"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_and__(zpx_operand, 7, 4, 2) 
         break;
     case 0x36:
         // {rol_zpx, AM_ZPX, "ROL"}
@@ -323,7 +343,7 @@ static _used[256];
         break;
     case 0x37:
         // {rmb3, AM_ZP, "RMB3"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_rmb_(0x08) 
         break;
     case 0x38:
         // {sec, AM_IMPL, "SEC"}
@@ -348,15 +368,15 @@ static _used[256];
         break;
     case 0x3C:
         // {bit_absx, AM_ABSX, "BIT"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_bit__(absx_operand, 5, 3) 
         break;
     case 0x3D:
         // {and_absx, AM_ABSX, "AND"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_and__(absx_operand, 8, 5, 3) 
         break;
     case 0x3E:
         // {rol_absx, AM_ABSX, "ROL"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_rol_abs(reg_x) 
         break;
     case 0x3F:
         // {bbr3, AM_PSREL, "BBR3"}
@@ -421,7 +441,7 @@ static _used[256];
         break;
     case 0x47:
         // {rmb4, AM_ZP, "RMB4"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_rmb_(0x10) 
         break;
     case 0x48:
         // {pha, AM_IMPL, "PHA"}
@@ -455,11 +475,11 @@ static _used[256];
         break;
     case 0x4D:
         // {eor_abs, AM_ABS, "EOR"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_eor__(abs_operand, 8, 5, 3) 
         break;
     case 0x4E:
         // {lsr_abs, AM_ABS, "LSR"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_lsr_abs_(0) 
         break;
     case 0x4F:
         // {bbr4, AM_PSREL, "BBR4"}
@@ -512,7 +532,7 @@ static _used[256];
         break;
     case 0x55:
         // {eor_zpx, AM_ZPX, "EOR"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_eor__(zpx_operand, 7, 4, 2) 
         break;
     case 0x56:
         // {lsr_zpx, AM_ZPX, "LSR"}
@@ -520,7 +540,7 @@ static _used[256];
         break;
     case 0x57:
         // {rmb5, AM_ZP, "RMB5"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_rmb_(0x20) 
         break;
     case 0x58:
         // {cli, AM_IMPL, "CLI"}
@@ -546,16 +566,15 @@ static _used[256];
         break;
     case 0x5D:
         // {eor_absx, AM_ABSX, "EOR"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_eor__(absx_operand, 8, 5, 3) 
         break;
     case 0x5E:
         // {lsr_absx, AM_ABSX, "LSR"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_lsr_abs_(reg_x) 
         break;
     case 0x5F:
         // {bbr5, AM_PSREL, "BBR5"}
-        OP_CALL_THROUGH_LOOKUP
-        //_OPCODE_bbr_(0x20) 
+        _OPCODE_bbr_(0x20) 
         break;
     // --- 0x60
     case 0x60:
@@ -594,7 +613,7 @@ static _used[256];
         break;
     case 0x67:
         // {rmb6, AM_ZP, "RMB6"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_rmb_(0x40) 
         break;
     case 0x68:
         // {pla, AM_IMPL, "PLA"}
@@ -614,7 +633,17 @@ static _used[256];
         break;
     case 0x6A:
         // {ror_a, AM_IMPL, "ROR"}
-        OP_CALL_THROUGH_LOOKUP 
+        {
+        uchar flg_tmp = (reg_p & FL_C) ? 0x80 : 0;
+        uchar temp = reg_a;
+    
+        reg_a = (reg_a / 2) + flg_tmp;
+        reg_p = (reg_p & ~(FL_N | FL_T | FL_Z | FL_C))
+            | ((temp & 0x01) ? FL_C : 0)
+            | flnz_list_get(reg_a);
+        reg_pc++;
+        cycles += 2; 
+        }
         break;
     case 0x6B:
         // {handle_bp6, AM_IMPL, "BP6"}
@@ -640,12 +669,11 @@ static _used[256];
         break;
     case 0x6E:
         // {ror_abs, AM_ABS, "ROR"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_ror_abs_(0) 
         break;
     case 0x6F:
         // {bbr6, AM_PSREL, "BBR6"}
-        OP_CALL_THROUGH_LOOKUP
-        //_OPCODE_bbr_(0x40) 
+        _OPCODE_bbr_(0x40) 
         break;
     // --- 0x70
     case 0x70:
@@ -712,7 +740,7 @@ static _used[256];
         break;
     case 0x77:
         // {rmb7, AM_ZP, "RMB7"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_rmb_(0x80) 
         break;
     case 0x78:
         // {sei, AM_IMPL, "SEI"}
@@ -759,7 +787,7 @@ static _used[256];
         break;
     case 0x7E:
         // {ror_absx, AM_ABSX, "ROR"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_ror_abs_(reg_x) 
         break;
     case 0x7F:
         // {bbr7, AM_PSREL, "BBR7"}
@@ -783,7 +811,7 @@ static _used[256];
         break;
     case 0x83:
         // {tstins_zp, AM_TST_ZP, "TST"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_tstins_(zp_operand, 7, 3) 
         break;
     case 0x84:
         // {sty_zp, AM_ZP, "STY"}
@@ -799,7 +827,7 @@ static _used[256];
         break;
     case 0x87:
         // {smb0, AM_ZP, "SMB0"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_smb_(0x01) 
         break;
     case 0x88:
         // {dey, AM_IMPL, "DEY"}
@@ -855,7 +883,7 @@ static _used[256];
         break;
     case 0x93:
         // {tstins_abs, AM_TST_ABS, "TST"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_tstins_(abs_operand, 8, 4) 
         break;
     case 0x94:
         // {sty_zpx, AM_ZPX, "STY"}
@@ -871,7 +899,7 @@ static _used[256];
         break;
     case 0x97:
         // {smb1, AM_ZP, "SMB1"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_smb_(0x02) 
         break;
     case 0x98:
         // {tya, AM_IMPL, "TYA"}
@@ -943,7 +971,7 @@ static _used[256];
       break;
     case 0xA7:
         // {smb2, AM_ZP, "SMB2"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_smb_(0x04) 
         break;
     case 0xA8:
         // {tay, AM_IMPL, "TAY"}
@@ -998,7 +1026,7 @@ static _used[256];
         break;
     case 0xB3:
         // {tstins_absx, AM_TST_ABSX, "TST"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_tstins_(absx_operand, 8, 4) 
         break;
     case 0xB4:
         // {ldy_zpx, AM_ZPX, "LDY"}
@@ -1014,7 +1042,7 @@ static _used[256];
         break;
     case 0xB7:
         // {smb3, AM_ZP, "SMB3"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_smb_(0x08) 
         break;
     case 0xB8:
         // {clv, AM_IMPL, "CLV"}
@@ -1075,7 +1103,7 @@ static _used[256];
         break;
     case 0xC4:
         // {cpy_zp, AM_ZP, "CPY"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_cp__(zp_operand, reg_y, 4, 2) 
         break;
     case 0xC5: // aaaa
         // {cmp_zp, AM_ZP, "CMP"}
@@ -1087,7 +1115,7 @@ static _used[256];
         break;
     case 0xC7:
         // {smb4, AM_ZP, "SMB4"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_smb_(0x10) 
         break;
     case 0xC8:
         // {iny, AM_IMPL, "INY"}
@@ -1117,7 +1145,7 @@ static _used[256];
         break;
     case 0xCD:
         // {cmp_abs, AM_ABS, "CMP"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_cmp__(abs_operand, 5, 3) 
         break;
     case 0xCE:
         // {dec_abs, AM_ABS, "DEC"}
@@ -1142,7 +1170,25 @@ static _used[256];
         break;
     case 0xD3:
         // {tin, AM_XFER, "TIN"}
-        OP_CALL_THROUGH_LOOKUP 
+        {
+        uint16 from, to, len;
+
+        reg_p &= ~FL_T;
+        from = get_16bit_addr(reg_pc + 1);
+        to = get_16bit_addr(reg_pc + 3);
+        len = get_16bit_addr(reg_pc + 5);
+    
+    #if ENABLE_TRACING_CD && defined(INLINED_ACCESSORS)
+        fprintf(stderr, "Transfert from bank 0x%02x to bank 0x%02x\n",
+                mmr[from >> 13], mmr[to >> 13]);
+    #endif
+    
+        cycles += (6 * len) + 17;
+        while (len-- != 0) {
+            put_8bit_addr(to, get_8bit_addr(from++));
+        }
+        reg_pc += 7;
+        } 
         break;
     case 0xD4:
         // {nop, AM_IMPL, "CSH"}
@@ -1150,7 +1196,7 @@ static _used[256];
         break;
     case 0xD5:
         // {cmp_zpx, AM_ZPX, "CMP"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_cmp__(zpx_operand, 4, 2) 
         break;
     case 0xD6: // aaaa
         // {dec_zpx, AM_ZPX, "DEC"}
@@ -1158,7 +1204,7 @@ static _used[256];
         break;
     case 0xD7:
         // {smb5, AM_ZP, "SMB5"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_smb_(0x20) 
         break;
     case 0xD8:
         // {cld, AM_IMPL, "CLD"}
@@ -1168,7 +1214,7 @@ static _used[256];
         break;
     case 0xD9:
         // {cmp_absy, AM_ABSY, "CMP"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_cmp__(absy_operand, 5, 3) 
         break;
     case 0xDA:
         // {phx, AM_IMPL, "PHX"}
@@ -1184,7 +1230,7 @@ static _used[256];
         break;
     case 0xDD:
         // {cmp_absx, AM_ABSX, "CMP"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_cmp__(absx_operand, 5, 3) 
         break;
     case 0xDE: // aaaa
         // {dec_absx, AM_ABSX, "DEC"}
@@ -1245,7 +1291,7 @@ static _used[256];
         break;
     case 0xE7:
         // {smb6, AM_ZP, "SMB6"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_smb_(0x40) 
         break;
     case 0xE8:
         // {inx, AM_IMPL, "INX"}
@@ -1299,7 +1345,27 @@ static _used[256];
         break;
     case 0xF3:
         // {tai, AM_XFER, "TAI"}
-        OP_CALL_THROUGH_LOOKUP 
+        {
+        uint16 from, to, len, alternate;
+
+        reg_p &= ~FL_T;
+        from = get_16bit_addr(reg_pc + 1);
+        to = get_16bit_addr(reg_pc + 3);
+        len = get_16bit_addr(reg_pc + 5);
+        alternate = 0;
+    
+    #if ENABLE_TRACING_CD && defined(INLINED_ACCESSORS)
+        fprintf(stderr, "Transfert from bank 0x%02x to bank 0x%02x\n",
+                mmr[from >> 13], mmr[to >> 13]);
+    #endif
+    
+        cycles += (6 * len) + 17;
+        while (len-- != 0) {
+            put_8bit_addr(to++, get_8bit_addr(from + alternate));
+            alternate ^= 1;
+        }
+        reg_pc += 7;
+        } 
         break;
     case 0xF4:
         // {set, AM_IMPL, "SET"}
@@ -1311,7 +1377,7 @@ static _used[256];
         break;
     case 0xF6:
         // {inc_zpx, AM_ZPX, "INC"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_inc_zp_(reg_x) 
         break;
     case 0xF7:
         // {smb7, AM_ZP, "SMB7"}
@@ -1319,7 +1385,9 @@ static _used[256];
         break;
     case 0xF8:
         // {sed, AM_IMPL, "SED"}
-        OP_CALL_THROUGH_LOOKUP 
+        reg_p = (reg_p | FL_D) & ~FL_T;
+        reg_pc++;
+        cycles += 2; 
         break;
     case 0xF9:
         // {sbc_absy, AM_ABSY, "SBC"}
