@@ -310,14 +310,33 @@ render_lines(int min_line, int max_line)
 
 	load_gfx_context(0);
 
+    if (!skipNextFrame)
 	if (!UCount) {				//Either we're in frameskip = 0 or we're in the frame to draw
 		if (SpriteON && SPONSwitch)
-			RefreshSpriteExact(min_line, max_line - 1, 0);
+#ifdef MY_INLINE_SPRITE
+        {
+            int Y1 = last_display_counter;
+            int Y2 = display_counter;
+            uchar bg = 0;
+            #include "sprite_RefreshSpriteExact.h"
+        }
+#else
+            RefreshSpriteExact(min_line, max_line - 1, 0);
+#endif
 
         RefreshLine(min_line, max_line - 1);
 
 		if (SpriteON && SPONSwitch)
-			RefreshSpriteExact(min_line, max_line - 1, 1);
+#ifdef MY_INLINE_SPRITE
+        {
+            int Y1 = last_display_counter;
+            int Y2 = display_counter;
+            uchar bg = 1;
+            #include "sprite_RefreshSpriteExact.h"
+        }
+#else
+            RefreshSpriteExact(min_line, max_line - 1, 1);
+#endif
 	}
 
 	load_gfx_context(1);
@@ -410,7 +429,11 @@ Loop6502()
 			if (gfx_need_redraw) {
 				// && scanline > io.vdc_min_display)
 				// We got render things before being on the second line
-				render_lines(last_display_counter, display_counter);
+#ifdef MY_INLINE_GFX
+                #include "gfx_render_lines.h"
+#else
+                render_lines(last_display_counter, display_counter);
+#endif
 				last_display_counter = display_counter;
 			}
 			display_counter++;
@@ -419,7 +442,11 @@ Loop6502()
 		if (scanline == 14 + 242) {
 			save_gfx_context(0);
 
-			render_lines(last_display_counter, display_counter);
+#ifdef MY_INLINE_GFX
+            #include "gfx_render_lines.h"
+#else
+            render_lines(last_display_counter, display_counter);
+#endif
 
 			if (video_dump_flag) {
 				if (video_dump_countdown)

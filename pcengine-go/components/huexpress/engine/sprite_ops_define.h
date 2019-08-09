@@ -192,9 +192,9 @@ extern void PutSpriteHflip(uchar * P, uchar * C, uchar * C2, uchar * R, int16 h,
     int16 _h = h_; int16 _inc = inc_;                                      \
     uint16 J;                                                                     \
     uint32 L;                                                                     \
-    uint32* C2r = (uint32*)C2;                                                    \
+    uint32* C2r = (uint32*)_C2;                                                    \
     int16 i;                                                                      \
-    for (i = 0; i < _h; i++, _C += _inc, _C2 += _inc, P += XBUF_WIDTH) {              \
+    for (i = 0; i < _h; i++, _C += _inc, C2r += _inc, P += XBUF_WIDTH) {              \
         J = (_C[0] + (_C[1] << 8)) | (_C[32] + (_C[33] << 8))                         \
             | (_C[64] + (_C[65] << 8)) | (_C[96] + (_C[97] << 8));                    \
                                                                                   \

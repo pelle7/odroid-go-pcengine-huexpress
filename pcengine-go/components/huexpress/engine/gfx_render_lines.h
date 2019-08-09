@@ -1,5 +1,7 @@
     save_gfx_context(1);
     load_gfx_context(0);
+    
+    if (!skipNextFrame)
     if (!UCount) { /* Either we're in frameskip = 0 or we're in the frame to draw */
         if (SpriteON && SPONSwitch)
         {
@@ -16,7 +18,6 @@
 #endif
         }
 #ifdef MY_INLINE_SPRITE
-if (!skipNextFrame)
         {
         int Y1 = last_display_counter;
         int Y2 = display_counter - 1;
@@ -31,10 +32,7 @@ if (!skipNextFrame)
             int Y1 = last_display_counter;
             int Y2 = display_counter;
             uchar bg = 1;
-            if (!skipNextFrame)
-            {
             #include "sprite_RefreshSpriteExact.h"
-            }
 #else
             RefreshSpriteExact(last_display_counter, display_counter - 1, 1);
 #endif

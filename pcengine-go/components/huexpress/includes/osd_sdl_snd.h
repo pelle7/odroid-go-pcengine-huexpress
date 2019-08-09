@@ -16,4 +16,6 @@ extern int Callback_Stop;
 extern int USE_S16;
 #endif
 
+extern int osd_sound_init();
+
 #endif

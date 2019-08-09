@@ -317,7 +317,7 @@ void
 RefreshScreen(void)
 {
     frame += UPeriod + 1;
-#ifdef MY_HCD_ENABLED
+#ifndef MY_EXCLUDE
     HCD_handle_subtitle();
 #endif
     /*

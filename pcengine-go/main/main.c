@@ -46,6 +46,13 @@ QueueHandle_t vidQueue;
 TaskHandle_t videoTaskHandle;
 volatile bool videoTaskIsRunning = false;
 #endif
+
+#define AUDIO_SAMPLE_RATE (22050)
+#ifdef MY_SND_AS_TASK
+QueueHandle_t audioQueue;
+TaskHandle_t audioTaskHandle;
+volatile bool audioTaskIsRunning = false;
+#endif
 uint8_t* framebuffer[2];
 uint16_t* my_palette;
 
@@ -111,6 +118,32 @@ void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned long s
 
 void videoTask_mode0(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0) }
 
+#ifdef MY_SND_AS_TASK
+void audioTask_mode0(void *arg) {
+    uint8_t* param;
+    audioTaskIsRunning = true;
+    printf("%s: STARTED\n", __func__);
+    
+    while(1)
+    {
+        xQueuePeek(audioQueue, &param, portMAX_DELAY);
+
+        if (param == TASK_BREAK)
+            break;
+
+        //func(param, my_palette);
+        /* odroid_input_battery_level_read(&battery);*/
+        xQueueReceive(audioQueue, &param, portMAX_DELAY);
+    }
+    xQueueReceive(audioQueue, &param, portMAX_DELAY);
+    odroid_audio_terminate();
+    audioTaskIsRunning = false;
+    printf("%s: FINISHED\n", __func__);
+    vTaskDelete(NULL);
+    while (1) {}
+}
+#endif
+
 NOINLINE void update_display_task()
 {
     printf("VIDEO: Task: Start\n");
@@ -129,9 +162,10 @@ void DoMenuHome(bool save)
 
     // Clear audio to prevent studdering
     printf("PowerDown: stopping audio.\n");
-    odroid_audio_terminate();
-    //xQueueSend(audioQueue, &exitAudioTask, portMAX_DELAY);
-    //while (AudioTaskIsRunning) {}
+#ifdef MY_SND_AS_TASK
+    xQueueSend(audioQueue, &param, portMAX_DELAY);
+    while (audioTaskIsRunning) { vTaskDelay(1); }
+#endif
 
     // Stop tasks
     printf("PowerDown: stopping tasks.\n");
@@ -154,6 +188,7 @@ NOINLINE void app_init(void)
 
     ili9341_init();
     ili9341_clear(0);
+    odroid_audio_init(odroid_settings_AudioSink_get(), AUDIO_SAMPLE_RATE);
 
     // Joystick.
     odroid_input_gamepad_init();
@@ -223,6 +258,12 @@ NOINLINE void app_init(void)
     osd_gfx_buffer = XBuf + 32 + 64 * XBUF_WIDTH;
 #ifdef MY_GFX_AS_TASK
     vidQueue = xQueueCreate(1, sizeof(uint16_t*));
+#endif
+#ifdef MY_SND_AS_TASK
+    audioQueue = xQueueCreate(1, sizeof(uint16_t*));
+    xTaskCreatePinnedToCore(&audioTask_mode0, "audioTask", 1024 * 4, NULL, 5, &audioTaskHandle, 1);
+    while (!audioTaskIsRunning) { vTaskDelay(1); }
+    printf("VIDEO: Task: Start done\n");
 #endif
     // void QuickSaveSetBuffer(void* data);
     

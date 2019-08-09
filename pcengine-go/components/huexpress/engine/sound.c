@@ -398,10 +398,17 @@ dump_audio_chunck(uchar * content, int length)
 	sound_dump_length += real_length;
 }
 #else
+
+
 uchar gen_vol = 255;
 int BaseClock = 7170000;
 //uint32 CycleOld;
 //uint32 CycleNew;
 uchar new_adpcm_play = 0;
 uint32 AdpcmFilledBuf = 0;
+
+
+
+
+
 #endif

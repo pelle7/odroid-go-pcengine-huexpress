@@ -144,3 +144,8 @@ osd_snd_set_volume(uchar v)
 {
 }
 #endif
+
+
+int osd_sound_init()
+{
+}

@@ -446,7 +446,8 @@ osd_getTime(void)
 // (2) An unknown hardware access is performed
 // (3) <ESC> key is hit
 
-#if 0
+#ifndef MY_h6280_exe_go
+
 void
 exe_go(void)
 {
@@ -469,8 +470,8 @@ exe_go(void)
 #ifdef BENCHMARK
 	static int countNb = 8;		/* run for 8 * 65536 scan lines */
 	static int countScan = 0;	/* scan line counter */
-	static double lastTime;
-	lastTime = osd_getTime();
+	static double startTime;
+    startTime = lastTime = osd_getTime();
 #endif
 
 	// err is set on a 'trap':
@@ -636,7 +637,11 @@ exe_go(void)
 				lastTime = currentTime;
 				countNb--;
 				if (countNb == 0)
-					return;
+				{
+				    printf("RESULT: %f\n", currentTime - startTime);
+				    esp_restart();
+                    //abort();
+                }
 			}
 #endif
 
@@ -707,10 +712,13 @@ exe_go(void)
 	}
 	MESSAGE_ERROR("Abnormal exit from the cpu loop\n");
 }
-#endif
+
+#else
 
 #ifdef MY_h6280_ON_CPU0
 #include "h6280_exe_go_multi.h"
 #else
 #include "h6280_exe_go.h"
+#endif
+
 #endif

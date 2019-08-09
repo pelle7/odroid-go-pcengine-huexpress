@@ -483,3 +483,95 @@ WriteBuffer(char *buf, int ch, unsigned dwSize)
 }
 
 #endif
+
+
+
+/* TODO : improve pointer in adpcm buffer maybe using fixed type */
+uint32
+WriteBufferAdpcm8(uchar * buf, uint32 begin, uint32 size, char *Index,
+                  int32 * PreviousValue)
+{
+    uint32 ret_val = 0;
+
+    /* TODO: use something else than ALLEGRO's fixed to make this portable */
+#ifdef ALLEGRO
+    int32 step, difference, deltaCode;
+    char index = *Index;
+    int32 previousValue = *PreviousValue;
+    fixed FixedIndex = 0, FixedInc;
+
+
+    if (io.adpcm_rate)
+        FixedInc =
+            ftofix((float) io.adpcm_rate * 1000 / (float) host.sound.freq);
+    else
+        return 0;
+
+    while (size) {
+
+        FixedIndex += FixedInc;
+
+        while (FixedIndex > itofix(1)) {
+
+            FixedIndex -= itofix(1);
+
+            ret_val++;
+
+            deltaCode = PCM[begin >> 1];
+
+            if (begin & 1)
+                deltaCode >>= 4;
+            else
+                deltaCode &= 0xF;
+
+            step = AdpcmStepSizeTable[index];
+
+            begin++;
+
+            begin &= 0x1FFFF;
+            // Make the adpcm repeat from beginning once finished
+
+            /* Construct the difference by scaling the current step size */
+            /* This is approximately: difference = (deltaCode+.5)*step/4 */
+            difference = step >> 3;
+            if (deltaCode & 1)
+                difference += step >> 2;
+            if (deltaCode & 2)
+                difference += step >> 1;
+            if (deltaCode & 4)
+                difference += step;
+
+            if (deltaCode & 8)
+                difference = -difference;
+
+            /* Build the new sample */
+            previousValue += difference;
+
+            if (previousValue > 32767)
+                previousValue = 32767;
+            else if (previousValue < -32768)
+                previousValue = -32768;
+
+            index += AdpcmIndexAdjustTable[deltaCode];
+            if (index < 0)
+                index = 0;
+            else if (index > ADPCM_MAX_INDEX)
+                index = ADPCM_MAX_INDEX;
+
+        }
+        /* TEST, was 5 */
+        *(buf++) = (previousValue << 6) >> 8;
+
+        size--;
+
+    }
+
+    *Index = index;
+    *PreviousValue = previousValue;
+
+#else
+    memset(buf, 0, host.sound.sample_size);
+#endif
+
+    return ret_val;
+}

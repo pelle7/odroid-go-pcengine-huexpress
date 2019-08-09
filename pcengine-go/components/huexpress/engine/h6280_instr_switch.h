@@ -1141,7 +1141,7 @@ static _used[256];
         break;
     case 0xCC:
         // {cpy_abs, AM_ABS, "CPY"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_cp__(abs_operand, reg_y, 5, 3)
         break;
     case 0xCD:
         // {cmp_abs, AM_ABS, "CMP"}

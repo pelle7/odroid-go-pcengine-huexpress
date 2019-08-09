@@ -67,7 +67,7 @@ Log(const char *format, ...)
 }
 
 
-#ifndef BENCHMARK
+#ifndef MY_VSYNC_DISABLE
 static double osd_getTime(void)
 {
 	struct timeval tp;
@@ -76,10 +76,10 @@ static double osd_getTime(void)
 	// printf("current microsec = %f\n",tp.tv_sec + 1e-6 * tp.tv_usec);
 	return tp.tv_sec + 1e-6 * tp.tv_usec;
 }
-#endif /* !BENCHMARK */
+#endif /* !MY_VSYNC_DISABLE */
 
 
-#ifndef BENCHMARK
+#ifndef MY_VSYNC_DISABLE
 static void osd_sleep(double s)
 {
 	// emu_too_fast = 0;
@@ -96,13 +96,13 @@ static void osd_sleep(double s)
 		// emu_too_fast = 1;
 	}
 }
-#endif /* !BENCHMARK */
+#endif /* !MY_VSYNC_DISABLE */
 
 
 void
 wait_next_vsync()
 {
-#ifndef BENCHMARK
+#ifndef MY_VSYNC_DISABLE
 	static double lasttime = 0, lastcurtime = 0, frametime = 0.1;
 	double curtime;
 	const double deltatime = (1.0 / 60.0);

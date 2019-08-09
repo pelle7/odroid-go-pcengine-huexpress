@@ -2,6 +2,13 @@
 void
 exe_go(void)
 {
+#ifdef BENCHMARK
+    static int countNb = 8;     /* run for 8 * 65536 scan lines */
+    static int countScan = 0;   /* scan line counter */
+    static double lastTime;
+    static double startTime;
+    startTime = lastTime = osd_getTime();
+#endif
 /*    flnz_list = (uchar *)my_special_alloc(false, 1,256);
     {
         memset(flnz_list,0,256);
@@ -44,6 +51,21 @@ exe_go(void)
 
         // HSYNC stuff - count cycles:
         /*if (cycles > 455) */ {
+#ifdef BENCHMARK
+            countScan++;
+            if ((countScan & 0xFFFF) == 0) {
+                double currentTime = osd_getTime();
+                printf("%f\n", currentTime - lastTime);
+                lastTime = currentTime;
+                countNb--;
+                if (countNb == 0)
+                {
+                    printf("RESULT: %f\n", currentTime - startTime);
+                    esp_restart();
+                    //abort();
+                }
+            }
+#endif
 
             CycleNew += cycles;
             // cycles -= 455;
