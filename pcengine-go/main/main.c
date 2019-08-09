@@ -89,6 +89,42 @@ void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned long s
 
 #ifdef MY_GFX_AS_TASK
 
+#ifdef MY_VIDEO_MODE_SCANLINES
+
+#define VID_TASK(func) \
+    struct my_scanline param; \
+    videoTaskIsRunning = true; \
+    printf("%s: STARTED\n", __func__); \
+     \
+    while(1) \
+    { \
+        xQueuePeek(vidQueue, &param, portMAX_DELAY); \
+ \
+        if (param.buffer == TASK_BREAK) \
+            break; \
+ \
+        odroid_display_lock(); \
+        func(&param, my_palette); \
+        odroid_display_unlock(); \
+        /* odroid_input_battery_level_read(&battery);*/ \
+        xQueueReceive(vidQueue, &param, portMAX_DELAY); \
+    } \
+    xQueueReceive(vidQueue, &param, portMAX_DELAY); \
+    /*odroid_display_lock();*/ \
+    /*odroid_display_show_hourglass();*/ \
+    /*odroid_display_unlock();*/ \
+    videoTaskIsRunning = false; \
+    printf("%s: FINISHED\n", __func__); \
+    vTaskDelete(NULL); \
+    while (1) {}
+
+
+void videoTask_mode0(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_scanlines) }
+
+
+#else
+
+
 #define VID_TASK(func) \
     uint8_t* param; \
     videoTaskIsRunning = true; \
@@ -116,7 +152,12 @@ void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned long s
     vTaskDelete(NULL); \
     while (1) {}
 
+
 void videoTask_mode0(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0) }
+void videoTask_mode0_w256(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_w256) }
+void videoTask_mode0_w320(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_w320) }
+void videoTask_mode0_w336(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_w336) }
+#endif
 
 #ifdef MY_SND_AS_TASK
 void audioTask_mode0(void *arg) {
@@ -144,10 +185,49 @@ void audioTask_mode0(void *arg) {
 }
 #endif
 
-NOINLINE void update_display_task()
+void StopVideo()
 {
+#ifdef MY_VIDEO_MODE_SCANLINES
+    struct my_scanline paramVideo;
+    paramVideo.buffer = TASK_BREAK;
+#else
+    uint8_t* paramVideo = TASK_BREAK;
+#endif
+#ifdef MY_GFX_AS_TASK
+    xQueueSend(vidQueue, &paramVideo, portMAX_DELAY);
+    while (videoTaskIsRunning) { vTaskDelay(1); }
+#endif
+}
+
+int old_width = -1;
+
+NOINLINE void update_display_task(int width)
+{
+    if (width == old_width) return;
+    old_width = width;
+
     printf("VIDEO: Task: Start\n");
-    TaskFunction_t taskFunc = &videoTask_mode0;
+    if (videoTaskIsRunning)
+    {
+        printf("VIDEO: Task: Stop\n");
+        StopVideo();
+        printf("VIDEO: Task: Stop done\n");
+        
+        printf("VIDEO: Clear display\n");
+        //odroid_display_lock();
+        ili9341_clear(0);
+        //odroid_display_unlock();
+    }
+    
+    TaskFunction_t taskFunc;
+    if (width == 256)
+        taskFunc = &videoTask_mode0_w256;
+    else if (width == 320)
+        taskFunc = &videoTask_mode0_w320;
+    else if (width == 336)
+        taskFunc = &videoTask_mode0_w336;
+    else
+        taskFunc = &videoTask_mode0;
     xTaskCreatePinnedToCore(taskFunc, "videoTask", 1024 * 4, NULL, 5, &videoTaskHandle, 1);
     while (!videoTaskIsRunning) { vTaskDelay(1); }
     printf("VIDEO: Task: Start done\n");
@@ -157,22 +237,18 @@ NOINLINE void update_display_task()
 
 void DoMenuHome(bool save)
 {
-    uint8_t* param = TASK_BREAK;
-    //void *exitAudioTask = NULL;
+    uint8_t* paramAudio = TASK_BREAK;
 
     // Clear audio to prevent studdering
     printf("PowerDown: stopping audio.\n");
 #ifdef MY_SND_AS_TASK
-    xQueueSend(audioQueue, &param, portMAX_DELAY);
+    xQueueSend(audioQueue, &paramAudio, portMAX_DELAY);
     while (audioTaskIsRunning) { vTaskDelay(1); }
 #endif
 
     // Stop tasks
     printf("PowerDown: stopping tasks.\n");
-#ifdef MY_GFX_AS_TASK
-    xQueueSend(vidQueue, &param, portMAX_DELAY);
-    while (videoTaskIsRunning) { vTaskDelay(1); }
-#endif
+    StopVideo();
     //DoReboot(save);
     DoReboot(false);
 }
@@ -257,7 +333,11 @@ NOINLINE void app_init(void)
     XBuf = framebuffer[0];
     osd_gfx_buffer = XBuf + 32 + 64 * XBUF_WIDTH;
 #ifdef MY_GFX_AS_TASK
+#ifdef MY_VIDEO_MODE_SCANLINES
+    vidQueue = xQueueCreate(64, sizeof(struct my_scanline));
+#else
     vidQueue = xQueueCreate(1, sizeof(uint16_t*));
+#endif
 #endif
 #ifdef MY_SND_AS_TASK
     audioQueue = xQueueCreate(1, sizeof(uint16_t*));
@@ -272,7 +352,7 @@ NOINLINE void app_init(void)
     InitPCE(rom_file);
     osd_init_machine();
 #ifdef MY_GFX_AS_TASK
-    update_display_task();
+    update_display_task(77);
 #endif
 }
 

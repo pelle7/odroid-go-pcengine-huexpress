@@ -5,6 +5,18 @@
 
 #include "sys_dep.h"
 
+
+#ifdef MY_GFX_AS_TASK
+extern QueueHandle_t vidQueue;
+#endif
+//#ifdef MY_VIDEO_MODE_SCANLINES
+struct my_scanline {
+    int YY1;
+    int YY2;
+    uint8_t* buffer;
+};
+//#endif
+
 #define	WIDTH	(360+64)
 #define	HEIGHT	256
 

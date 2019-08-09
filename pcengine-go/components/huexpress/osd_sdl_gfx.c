@@ -469,6 +469,8 @@ drawVolume(char *name, int volume)
 
 #else
 
+extern void update_display_task(int width);
+
 uint startTime;
 uint stopTime;
 uint totalElapsedTime;
@@ -484,7 +486,7 @@ extern uint16_t* my_palette;
 bool scaling_enabled = false;
 uint8_t frameskip = 10;
 // uint8_t frameskip = 2;
-// uint8_t frameskip = 3;
+//uint8_t frameskip = 4;
 
 inline void update_ui_fps() {
     stopTime = xthal_get_ccount();
@@ -552,9 +554,10 @@ osd_gfx_init(void)
 int
 osd_gfx_init_normal_mode()
 {
-    printf("%s: \n", __func__);
+    printf("%s: (%dx%d)\n", __func__, io.screen_w, io.screen_h);
     startTime = xthal_get_ccount();
     SetPalette();
+    update_display_task(io.screen_w);
     return true;
 }
 
@@ -572,7 +575,9 @@ osd_gfx_put_image_normal(void)
     {
     // printf("RES: (%dx%d)\n", io.screen_w, io.screen_h);
 #ifdef MY_GFX_AS_TASK
+#ifndef MY_VIDEO_MODE_SCANLINES
     xQueueSend(vidQueue, &osd_gfx_buffer, portMAX_DELAY);
+#endif
     current_framebuffer = current_framebuffer ? 0 : 1;
 #else
     ili9341_write_frame_pcengine_mode0(osd_gfx_buffer, my_palette);

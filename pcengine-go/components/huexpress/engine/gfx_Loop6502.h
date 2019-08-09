@@ -73,9 +73,26 @@
 #else
                 render_lines(last_display_counter, display_counter);
 #endif
+#ifdef MY_VIDEO_MODE_SCANLINES
+                last_display_counter = display_counter + 1;
+            } else {
+                display_counter++;
+                if (display_counter-last_display_counter>=40)
+                {
+                save_gfx_context(0);
+#ifdef MY_INLINE_GFX
+                #include "gfx_render_lines.h"
+#else
+                render_lines(last_display_counter, display_counter);
+#endif
+                last_display_counter = display_counter;
+                }
+            }
+#else
                 last_display_counter = display_counter;
             }
             display_counter++;
+#endif
         }
     } else if (scanline < 14 + 242 + 4) {
         if (scanline == 14 + 242) {
