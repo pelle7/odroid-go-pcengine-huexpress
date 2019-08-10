@@ -117,7 +117,10 @@ void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned long s
 
 
 void videoTask_mode0(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_scanlines) }
-
+void videoTask_mode0_w224(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_scanlines_w224) }
+void videoTask_mode0_w256(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_scanlines_w256) }
+void videoTask_mode0_w320(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_scanlines_w320) }
+void videoTask_mode0_w336(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_scanlines_w336) }
 
 #else
 
@@ -385,6 +388,7 @@ NOINLINE void app_init(void)
     spr_init_pos = (uint32 *)my_special_alloc(false, 4, 1024 * 4);
     SPM_raw = (uchar*)my_special_alloc(false, 1, XBUF_WIDTH * XBUF_HEIGHT);
     SPM = SPM_raw + XBUF_WIDTH * 64 + 32;
+    memset(SPM_raw,0, XBUF_WIDTH * XBUF_HEIGHT);
     log_filename = (char *)my_special_alloc(false, 1, PATH_MAX_MY);
     strcpy(cart_name, "");
     strcpy(short_cart_name, "");
@@ -405,6 +409,8 @@ NOINLINE void app_init(void)
     //framebuffer[1] = heap_caps_malloc(XBUF_WIDTH * XBUF_HEIGHT, MALLOC_CAP_8BIT | MALLOC_CAP_DMA);
     if (!framebuffer[1]) abort();
     printf("app_main: framebuffer[1]=%p\n", framebuffer[1]);
+    memset(framebuffer[0], 0, XBUF_WIDTH * XBUF_HEIGHT);
+    memset(framebuffer[1], 0, XBUF_WIDTH * XBUF_HEIGHT);
     
     my_palette = my_special_alloc(false, 1, 256 * sizeof(uint16_t));
     if (!my_palette) abort();

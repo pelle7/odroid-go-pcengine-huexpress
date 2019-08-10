@@ -502,28 +502,16 @@ inline void update_ui_fps() {
       float seconds = totalElapsedTime / (CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ * 1000000.0f);
       float fps = my_frame / seconds;
       printf("FPS:%f\n", fps);
+#ifdef MY_DEBUG_CHECKS
       if (cycles_ > 0)
       {
-        printf("Further OpCodes must be inlined!\n");
+        printf("Further OpCodes must be inlined! %d\n", cycles_);
       }
-
-      //printf("HEAP:0x%x, FPS:%f, BATTERY:%d [%d]\n", esp_get_free_heap_size(), fps, battery.millivolts, battery.percentage);
-      
-      //vTaskGetRunTimeStats(pmem);
-      //printf(pmem);
+#endif
       
       my_frame = 0;
       totalElapsedTime = 0;
-      /*if (config_ui_stats) {
-        update_ui_fps_text(fps);
-      }*/
 #ifdef ODROID_DEBUG_PERF_USE
-    /*
-    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_TOTAL, 269334479);
-    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_CPU, 230473555);
-    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_LOOP6502, 144456221);
-    odroid_debug_perf_log_specific(ODROID_DEBUG_PERF_MEM_ACCESS1, 135921297);
-    */
     odroid_debug_perf_log_one("cpu"        , ODROID_DEBUG_PERF_CPU);
     odroid_debug_perf_log_one("loop6502"   , ODROID_DEBUG_PERF_LOOP6502);
     odroid_debug_perf_log_one("INT"        , ODROID_DEBUG_PERF_INT);
@@ -537,7 +525,6 @@ inline void update_ui_fps() {
 ODROID_DEBUG_PERF_LOG()
     }
     startTime = stopTime;
-    // usleep(20*1000UL);
 }
 
 int

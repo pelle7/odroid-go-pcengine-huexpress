@@ -5,7 +5,7 @@
 #include "esp_system.h"
 #include "odroid_input.h"
 
-#define MY_LYNX_INTERNAL_GAME_SELECT
+#define MY_INTERNAL_GAME_SELECT_IF_NEEDED
 
 extern bool config_speedup;
 extern bool config_ui_stats;

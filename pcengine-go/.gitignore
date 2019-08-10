@@ -1,7 +1,7 @@
 build/
 sdkconfig.old
 *.gch
-components/lynx/*.o
 .DS_Store
-lynx.fw
-atarilynx-title.raw
+pcengine.fw
+pcengine-title.raw
+pcengine-title-resized.png

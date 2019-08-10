@@ -1,15 +1,15 @@
 #!/bin/bash
 . ${IDF_PATH}/add_path.sh
 
-export TITLE="Atari Lynx (pelle7-`date +%Y%m%d`)"
-export IMG_TITLE=atarilynx-title.raw
-export FW_FILENAME=lynx.fw
+export TITLE="PC Engine (pelle7-`date +%Y%m%d`)"
+export IMG_TITLE=pcengine-title.raw
+export FW_FILENAME=pcengine.fw
 
 #export EXE_MKFW=mkfw
 export EXE_MKFW=/Users/torf/Documents/pelle7/ws/test2b/_git/odroid-go-firmware/tools/mkfw/mkfw
-export BIN_HANDY=build/handy-go.bin
+export BIN_PCENGINE=build/pcengine-go.bin
 
-$EXE_MKFW "$TITLE" $IMG_TITLE 0 16 1048576 atarilynx $BIN_HANDY
+$EXE_MKFW "$TITLE" $IMG_TITLE 0 16 1048576 pcengine $BIN_PCENGINE
 if [ $? -ne 0 ]; then
     echo MKFW failed
     exit 1
@@ -21,5 +21,5 @@ pwd
 ls -lah *.fw
 exit 0
 
-convert atarilynx-title.jpg -resize 86x48\! atarilynx-title.png
-ffmpeg -i "atarilynx-title.png" -f rawvideo -pix_fmt rgb565 atarilynx-title.raw 
+convert pcengine-title.png -resize 86x48\! pcengine-title-resized.png
+ffmpeg -i "pcengine-title-resized.png" -f rawvideo -pix_fmt rgb565 pcengine-title.raw 

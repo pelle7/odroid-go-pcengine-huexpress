@@ -382,10 +382,6 @@ void odroid_ui_func_update_volume(odroid_ui_entry *entry) {
 	sprintf(entry->text, "%-9s: %d", "vol", odroid_audio_volume_get());
 }
 
-void odroid_ui_func_update_scale(odroid_ui_entry *entry) {
-	sprintf(entry->text, "%-9s: %s", "scale", scaling_enabled?"on":"off");
-}
-
 void odroid_ui_func_update_brightness(odroid_ui_entry *entry) {
     if (!is_backlight_initialized()) {
         sprintf(entry->text, "%-9s: %s", "bright", "n/a");
@@ -431,11 +427,6 @@ odroid_ui_func_toggle_rc odroid_ui_func_toggle_volume(odroid_ui_entry *entry, od
     odroid_audio_volume_set(old);
     odroid_settings_Volume_set(old);
     return ODROID_UI_FUNC_TOGGLE_RC_CHANGED;
-}
-
-odroid_ui_func_toggle_rc odroid_ui_func_toggle_scale(odroid_ui_entry *entry, odroid_gamepad_state *joystick) {
-	scaling_enabled = !scaling_enabled;
-	return ODROID_UI_FUNC_TOGGLE_RC_MENU_RESTART;
 }
 
 odroid_ui_func_toggle_rc odroid_ui_func_toggle_brightness(odroid_ui_entry *entry, odroid_gamepad_state *joystick) {
@@ -494,7 +485,6 @@ int exec_menu(bool *restart_menu, odroid_ui_func_window_init_def func_window_ini
 	
 	//odroid_ui_create_entry(&window, &odroid_ui_func_update_speedup, &odroid_ui_func_toggle_speedup);
 	odroid_ui_create_entry(&window, &odroid_ui_func_update_volume, &odroid_ui_func_toggle_volume);
-	odroid_ui_create_entry(&window, &odroid_ui_func_update_scale, &odroid_ui_func_toggle_scale);
 	odroid_ui_create_entry(&window, &odroid_ui_func_update_brightness, &odroid_ui_func_toggle_brightness);
 	
 	if (func_window_init) {
@@ -651,7 +641,7 @@ char *odroid_ui_choose_file(const char *path, const char *ext) {
             odroid_input_gamepad_read(&joystick);
             bool choose = joystick.values[ODROID_INPUT_SELECT];
 
-#ifdef MY_LYNX_INTERNAL_GAME_SELECT
+#ifdef MY_INTERNAL_GAME_SELECT_IF_NEEDED
             if (odroid_settings_ForceInternalGameSelect_get())
             {
                 odroid_settings_ForceInternalGameSelect_set(0);
@@ -1152,6 +1142,9 @@ void DoReboot(bool save)
     odroid_display_lock();
     odroid_sdcard_close();
     odroid_display_unlock();
+#ifdef MY_INTERNAL_GAME_SELECT_IF_NEEDED
+    odroid_settings_ForceInternalGameSelect_set(1);
+#endif
 
     gpio_set_level(GPIO_NUM_2, 0);
     // Set menu application

@@ -24,6 +24,7 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 // -------------------------------------------------
 
 // ------------------------------------------------- V2
+/*
 #define MY_INLINE_GFX_Loop6502
 #define MY_INLINE_SPRITE 1
 //#define MY_INLINE_SPRITE 2
@@ -41,7 +42,15 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 //#define MY_h6280_INT_cycle_counter // Negativ
 #define MY_VDC_VARS // Pos
 #define MY_USE_FAST_RAM
+*/
 // -------------------------------------------------
+
+// ------------------------------------------------- V3
+#define MY_INLINE_GFX_Loop6502
+#define MY_VDC_VARS // Pos
+#define MY_USE_FAST_RAM
+// -------------------------------------------------
+
 
 #define USE_INSTR_SWITCH // ***
 #define MY_INLINE_h6280_opcodes //***
@@ -56,6 +65,7 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 #define MY_LOG_CPU_NOT_INLINED // Slower without?!
 //#define BENCHMARK
 //#define MY_VSYNC_DISABLE
+//#define MY_DEBUG_CHECKS
 
 
 extern bool skipNextFrame;
