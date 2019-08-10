@@ -1815,11 +1815,47 @@ wait_internet_digest_status (uchar * local_input)
 #include "../odroid/odroid_ui.h"
 
 extern void DoMenuHome(bool save);
+extern void EmuAudio(bool enable);
 
     bool menu_restart = false;
     bool ignoreMenuButton = true;
     uint16_t menuButtonFrameCount = 0;
     odroid_gamepad_state previousJoystickState;
+
+#define FRAMESKIP_MAX 11
+extern uint8_t frameskip;
+extern bool audioTaskIsRunning;
+
+void menu_pcengine_audio_update(odroid_ui_entry *entry) {
+    if (audioTaskIsRunning) {
+        sprintf(entry->text, "%-9s: %s", "audio", "on");
+    } else {
+        sprintf(entry->text, "%-9s: %s", "audio", "off");
+    }
+}
+
+odroid_ui_func_toggle_rc menu_pcengine_audio_toggle(odroid_ui_entry *entry, odroid_gamepad_state *joystick) {
+    EmuAudio(!audioTaskIsRunning);
+    return ODROID_UI_FUNC_TOGGLE_RC_CHANGED;
+}
+
+void menu_pcengine_frameskip_update(odroid_ui_entry *entry) {
+    sprintf(entry->text, "%-9s: %d", "frameskip", frameskip - 1);
+}
+
+odroid_ui_func_toggle_rc menu_pcengine_frameskip_toggle(odroid_ui_entry *entry, odroid_gamepad_state *joystick) {
+    if (joystick->values[ODROID_INPUT_A] || joystick->values[ODROID_INPUT_RIGHT]) {
+        if (frameskip<FRAMESKIP_MAX) frameskip++;
+    } else if (joystick->values[ODROID_INPUT_LEFT]) {
+        if (frameskip>3) frameskip--;
+    }
+    return ODROID_UI_FUNC_TOGGLE_RC_CHANGED;
+}
+
+void menu_pceninge_init(odroid_ui_window *window) {
+    odroid_ui_create_entry(window, &menu_pcengine_audio_update, &menu_pcengine_audio_toggle);
+    odroid_ui_create_entry(window, &menu_pcengine_frameskip_update, &menu_pcengine_frameskip_toggle);
+}
 
 int
 osd_keyboard (void)
@@ -1828,7 +1864,7 @@ osd_keyboard (void)
     odroid_gamepad_state joystick;
     odroid_input_gamepad_read(&joystick);
     
-    ODROID_UI_MENU_HANDLER_LOOP_V1(previousJoystickState, joystick, DoMenuHome, odroid_ui_menu);
+    ODROID_UI_MENU_HANDLER_LOOP_V1_EXT(previousJoystickState, joystick, DoMenuHome, menu_pceninge_init);
     previousJoystickState = joystick;
     
     uint8_t rc = 0;

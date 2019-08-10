@@ -7,7 +7,7 @@ extern void *my_special_alloc(unsigned char speed, unsigned char bytes, unsigned
 
 #define MY_EXCLUDE
 #define MY_GFX_AS_TASK
-//#define MY_SND_AS_TASK
+#define MY_SND_AS_TASK
 
 //#define ODROID_DEBUG_PERF_CPU_ALL_INSTR
 

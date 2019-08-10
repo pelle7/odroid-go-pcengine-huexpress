@@ -27,6 +27,7 @@ extern bool QuickSaveState(FILE *f);
 bool MyQuickLoadState();
 bool MyQuickSaveState();
 
+bool odroid_ui_menu_opened;
 extern bool scaling_enabled;
 bool forceConsoleReset = false;
 extern bool config_ui_stats;
@@ -217,7 +218,7 @@ bool odroid_ui_menu_ext(bool restart_menu, odroid_ui_func_window_init_def func_w
 	int start_key = ODROID_INPUT_VOLUME;
 	bool shortcut_key = false;
 	odroid_gamepad_state lastJoysticState;
-
+    odroid_ui_menu_opened = true;
 	usleep(25*1000UL);
 	prepare();
 	clean_draw_buffer();
@@ -296,6 +297,7 @@ bool odroid_ui_menu_ext(bool restart_menu, odroid_ui_func_window_init_def func_w
     wait_for_key(last_key);
     printf("odroid_ui_menu! Continue\n");
     odroid_display_unlock();
+    odroid_ui_menu_opened = false;
     return restart_menu;
 }
 
@@ -580,6 +582,7 @@ void odroid_ui_debug_enter_loop() {
 	startTime = xthal_get_ccount();
 	prepare();
 	config_speedup = false;
+	odroid_ui_menu_opened = false;
 	ODROID_DEBUG_PERF_INIT()
 }
 

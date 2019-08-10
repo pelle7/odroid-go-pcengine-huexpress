@@ -47,7 +47,6 @@ TaskHandle_t videoTaskHandle;
 volatile bool videoTaskIsRunning = false;
 #endif
 
-#define AUDIO_SAMPLE_RATE (22050)
 #ifdef MY_SND_AS_TASK
 QueueHandle_t audioQueue;
 TaskHandle_t audioTaskHandle;
@@ -55,8 +54,6 @@ volatile bool audioTaskIsRunning = false;
 #endif
 uint8_t* framebuffer[2];
 uint16_t* my_palette;
-
-#define AUDIO_SAMPLE_RATE (22050)
 
 void dump_heap_info_short() {
     printf("LARGEST: 8BIT: %u\n", heap_caps_get_largest_free_block( MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT ));
@@ -160,24 +157,89 @@ void videoTask_mode0_w336(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mod
 #endif
 
 #ifdef MY_SND_AS_TASK
+#define AUDIO_SAMPLE_RATE (22050)
+#define AUDIO_BUFFER_SIZE (4096) 
+//(1920*4)
+#define AUDIO_CHANNELS 6
+short *sbuf_mix[2];
+char *sbuf[AUDIO_CHANNELS];
 void audioTask_mode0(void *arg) {
     uint8_t* param;
     audioTaskIsRunning = true;
     printf("%s: STARTED\n", __func__);
+    uint8_t buf = 0;
     
     while(1)
     {
-        xQueuePeek(audioQueue, &param, portMAX_DELAY);
-
-        if (param == TASK_BREAK)
-            break;
-
-        //func(param, my_palette);
-        /* odroid_input_battery_level_read(&battery);*/
-        xQueueReceive(audioQueue, &param, portMAX_DELAY);
+        if (xQueuePeek(audioQueue, &param, 0) == pdTRUE)
+        {
+            if (param == TASK_BREAK)
+                break;
+            xQueueReceive(audioQueue, &param, portMAX_DELAY);
+        }
+        //memset(sbuf[buf], 0, AUDIO_BUFFER_SIZE);
+        if (odroid_ui_menu_opened)
+        {
+            usleep(100*1000);
+            continue;
+        }
+        usleep(10*1000);
+        char *sbufp[AUDIO_CHANNELS];
+        for (int i = 0;i < AUDIO_CHANNELS;i++)
+        {
+          sbufp[i] = sbuf[i];
+          WriteBuffer((char*)sbuf[i], i, AUDIO_BUFFER_SIZE/2);
+        }
+        /*
+        uchar lvol, rvol;
+        lvol = (io.psg_volume >> 4) * 1.22;
+        rvol = (io.psg_volume & 0x0F) * 1.22;
+        
+        short *p = sbuf_mix[buf];
+        for (int i = 0;i < AUDIO_BUFFER_SIZE/2;i++)
+        {
+             short lval = 0;
+             short rval = 0;
+            for (int j = 0;j< AUDIO_CHANNELS;j++)
+            {
+                lval+=( short)(*sbufp[j]);
+                rval+=( short)(*(sbufp[j]+1));
+                sbufp[j]++;
+            }
+            lval = lval * lvol;
+            rval = rval * rvol;
+            *p = lval;
+            *(p+1) = rval;
+            p+=2;
+        }
+        */
+        uchar lvol, rvol;
+        lvol = (io.psg_volume >> 4) * 1.22;
+        rvol = (io.psg_volume & 0x0F) * 1.22;
+        
+        short *p = sbuf_mix[buf];
+        for (int i = 0;i < AUDIO_BUFFER_SIZE/2;i++)
+        {
+             short lval = 0;
+             short rval = 0;
+            for (int j = 0;j< AUDIO_CHANNELS;j++)
+            {
+                lval+=( short)sbufp[j][i];
+                rval+=( short)sbufp[j][i+1];
+            }
+            //lval = lval/AUDIO_CHANNELS;
+            //rval = rval/AUDIO_CHANNELS;
+            lval = lval * lvol;
+            rval = rval * rvol;
+            *p = lval;
+            *(p+1) = rval;
+            p+=2;
+        }
+        
+        odroid_audio_submit((short*)sbuf_mix[buf], AUDIO_BUFFER_SIZE/4);
+        buf = buf?0:1;
     }
     xQueueReceive(audioQueue, &param, portMAX_DELAY);
-    odroid_audio_terminate();
     audioTaskIsRunning = false;
     printf("%s: FINISHED\n", __func__);
     vTaskDelete(NULL);
@@ -235,15 +297,29 @@ NOINLINE void update_display_task(int width)
 
 #endif
 
-void DoMenuHome(bool save)
+void EmuAudio(bool enable)
 {
     uint8_t* paramAudio = TASK_BREAK;
+    if (enable == audioTaskIsRunning) return;
+    if (enable)
+    {
+        xTaskCreatePinnedToCore(&audioTask_mode0, "audioTask", 1024 * 4, NULL, 5, &audioTaskHandle, 1);
+        while (!audioTaskIsRunning) { vTaskDelay(1); }
+    }
+    else
+    {
+        xQueueSend(audioQueue, &paramAudio, portMAX_DELAY);
+        while (audioTaskIsRunning) { vTaskDelay(1); }
+    }
+}
 
+void DoMenuHome(bool save)
+{
     // Clear audio to prevent studdering
     printf("PowerDown: stopping audio.\n");
 #ifdef MY_SND_AS_TASK
-    xQueueSend(audioQueue, &paramAudio, portMAX_DELAY);
-    while (audioTaskIsRunning) { vTaskDelay(1); }
+    EmuAudio(false);
+    odroid_audio_terminate();
 #endif
 
     // Stop tasks
@@ -339,12 +415,7 @@ NOINLINE void app_init(void)
     vidQueue = xQueueCreate(1, sizeof(uint16_t*));
 #endif
 #endif
-#ifdef MY_SND_AS_TASK
-    audioQueue = xQueueCreate(1, sizeof(uint16_t*));
-    xTaskCreatePinnedToCore(&audioTask_mode0, "audioTask", 1024 * 4, NULL, 5, &audioTaskHandle, 1);
-    while (!audioTaskIsRunning) { vTaskDelay(1); }
-    printf("VIDEO: Task: Start done\n");
-#endif
+
     // void QuickSaveSetBuffer(void* data);
     
     odroid_audio_init(odroid_settings_AudioSink_get(), AUDIO_SAMPLE_RATE);
@@ -353,6 +424,22 @@ NOINLINE void app_init(void)
     osd_init_machine();
 #ifdef MY_GFX_AS_TASK
     update_display_task(77);
+#endif
+#ifdef MY_SND_AS_TASK
+    host.sound.stereo = true;
+    host.sound.signed_sound = false;
+    host.sound.freq = AUDIO_SAMPLE_RATE;
+    host.sound.sample_size = 1;
+    for (int i = 0;i < AUDIO_CHANNELS; i++)
+    {
+        sbuf[i] = my_special_alloc(false, 1, AUDIO_BUFFER_SIZE/2);
+    } 
+    sbuf_mix[0] = my_special_alloc(false, 1, AUDIO_BUFFER_SIZE);
+    sbuf_mix[1] = my_special_alloc(false, 1, AUDIO_BUFFER_SIZE);
+    
+    audioQueue = xQueueCreate(1, sizeof(uint16_t*));
+    EmuAudio(true);
+    printf("VIDEO: Task: Start done\n");
 #endif
 }
 

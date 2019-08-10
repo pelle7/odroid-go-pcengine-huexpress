@@ -9,6 +9,7 @@
 
 extern bool config_speedup;
 extern bool config_ui_stats;
+extern bool odroid_ui_menu_opened;
 
 #ifndef ODROID_UI_CALLCONV
 #  if defined(__GNUC__) && defined(__i386__) && !defined(__x86_64__)
@@ -143,6 +144,36 @@ void DoStartupPost();
         { \
             menu_restart = CALLBACK_MENU(menu_restart); \
         }
+
+#define ODROID_UI_MENU_HANDLER_LOOP_V1_EXT(joy_last, joy, CALLBACK_SHUTDOWN, MENU_INIT) \
+        if (ignoreMenuButton) \
+        { \
+            ignoreMenuButton = joy_last.values[ODROID_INPUT_MENU]; \
+        } \
+ \
+        if (!ignoreMenuButton && joy_last.values[ODROID_INPUT_MENU] && joy.values[ODROID_INPUT_MENU]) \
+        { \
+            ++menuButtonFrameCount; \
+        } \
+        else \
+        { \
+            menuButtonFrameCount = 0; \
+        } \
+        if (menuButtonFrameCount > 60 * 1) \
+        { \
+            CALLBACK_SHUTDOWN(true); \
+        } \
+         \
+        if (!ignoreMenuButton && joy_last.values[ODROID_INPUT_MENU] && !joy.values[ODROID_INPUT_MENU]) \
+        { \
+            CALLBACK_SHUTDOWN(false); \
+        } \
+        if ((!joy_last.values[ODROID_INPUT_VOLUME] && \
+            joy.values[ODROID_INPUT_VOLUME]) || menu_restart) \
+        { \
+            menu_restart = odroid_ui_menu_ext(menu_restart, &MENU_INIT); \
+        }
+
 
 #define ODROID_UI_MENU_HANDLER_LOOP_V2(joy_last, joy, CALLBACK_SHUTDOWN) \
         if (ignoreMenuButton) \
