@@ -1,5 +1,6 @@
 #ifndef ODROID_DISPLAY_EMU_IMPL
 void ili9341_write_frame_pcengine_mode0(uint8_t* buffer, uint16_t* pal);
+void ili9341_write_frame_pcengine_mode0_w224(uint8_t* buffer, uint16_t* pal);
 void ili9341_write_frame_pcengine_mode0_w256(uint8_t* buffer, uint16_t* pal);
 void ili9341_write_frame_pcengine_mode0_w320(uint8_t* buffer, uint16_t* pal);
 void ili9341_write_frame_pcengine_mode0_w336(uint8_t* buffer, uint16_t* pal);
@@ -86,6 +87,44 @@ void ili9341_write_frame_pcengine_mode0(uint8_t* buffer, uint16_t* pal)
     //#define MISSING ( 240 * XBUF_WIDTH - PCENGINE_GAME_HEIGHT*320)
     //memset(sPtr, 0, MISSING);
 }
+
+#define ODROID_DISPLAY_FRAME_RES(FUNC_NAME, WIDTH)           \
+void FUNC_NAME(uint8_t* buffer, uint16_t* pal)               \
+{                                                            \
+    uint8_t* framePtr = buffer ;                             \
+    uint8_t *sPtr = SPM;                                     \
+    short x, y;                                              \
+    uchar pal0 = Pal[0];                                     \
+    send_reset_drawing((320-WIDTH)/2, 0, WIDTH, 240);        \
+    for (y = 0; y < PCENGINE_GAME_HEIGHT; y += 4)            \
+    {                                                        \
+      uint16_t* line_buffer = line_buffer_get();             \
+      uint16_t* line_buffer_ptr = line_buffer;               \
+      for (short i = 0; i < 4; ++i)                          \
+      {                                                      \
+          for (x = 0; x < WIDTH; ++x)                        \
+          {                                                  \
+            uint8_t source=*framePtr;                        \
+            *framePtr = pal0;                                \
+            framePtr++;                                      \
+            uint16_t value1 = pal[source];                   \
+            *line_buffer_ptr = value1;                       \
+            line_buffer_ptr++;                               \
+            *sPtr = 0;                                       \
+            sPtr++;                                          \
+          }                                                  \
+          framePtr+=280 + (320-WIDTH);                       \
+          sPtr+=280 + (320-WIDTH);                           \
+      }                                                      \
+      send_continue_line(line_buffer, WIDTH, 4);             \
+    }                                                        \
+}
+
+ODROID_DISPLAY_FRAME_RES(ili9341_write_frame_pcengine_mode0_w224, 224)
+
+
+
+
 
 void ili9341_write_frame_pcengine_mode0_w256(uint8_t* buffer, uint16_t* pal)
 {

@@ -175,8 +175,7 @@ static _used[256];
         break;
     case 0x15:
         // {ora_zpx, AM_ZPX, "ORA"}
-        OP_CALL_THROUGH_LOOKUP
-        //_OPCODE_ora__(zpindy_operand, 10, 7, _) 
+        _OPCODE_ora__(zpx_operand, 7, 4, 2) 
         break;
     case 0x16:
         // {asl_zpx, AM_ZPX, "ASL"}
@@ -210,7 +209,19 @@ static _used[256];
         break;
     case 0x1C:
         // {trb_abs, AM_ABS, "TRB"}
-        OP_CALL_THROUGH_LOOKUP 
+        {
+        uint16 abs_addr = get_16bit_addr(reg_pc + 1);
+        uchar temp = get_8bit_addr(abs_addr);
+        uchar temp1 = (~reg_a) & temp;
+    
+        reg_p = (reg_p & ~(FL_N | FL_V | FL_T | FL_Z))
+            | ((temp1 & 0x80) ? FL_N : 0)
+            | ((temp1 & 0x40) ? FL_V : 0)
+            | ((temp & reg_a) ? 0 : FL_Z);
+        cycles += 7;
+        put_8bit_addr(abs_addr, temp1);
+        reg_pc += 3;
+        } 
         break;
     case 0x1D:
         // {ora_absx, AM_ABSX, "ORA"}
@@ -297,7 +308,7 @@ static _used[256];
         break;
     case 0x2C:
         // {bit_abs, AM_ABS, "BIT"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_bit__(abs_operand, 5, 3) 
         break;
     case 0x2D:
         // {and_abs, AM_ABS, "AND"}
@@ -338,8 +349,7 @@ static _used[256];
         break;
     case 0x36:
         // {rol_zpx, AM_ZPX, "ROL"}
-        OP_CALL_THROUGH_LOOKUP
-        // _OPCODE_rol_zp(reg_x) 
+        _OPCODE_rol_zp(reg_x) 
         break;
     case 0x37:
         // {rmb3, AM_ZP, "RMB3"}
@@ -396,7 +406,14 @@ static _used[256];
         break;
     case 0x42:
         // {say, AM_IMPL, "SAY"}
-        OP_CALL_THROUGH_LOOKUP 
+        {
+        uchar temp = reg_y;
+        reg_p &= ~FL_T;
+        reg_y = reg_a;
+        reg_a = temp;
+        reg_pc++;
+        cycles += 3;
+        } 
         break;
     case 0x43:
         // {tma, AM_IMMED, "TMA"}
@@ -954,7 +971,7 @@ static _used[256];
         break;
     case 0xA3:
         // {tstins_zpx, AM_TST_ZPX, "TST"}
-        OP_CALL_THROUGH_LOOKUP 
+        _OPCODE_tstins_(zpx_operand, 7, 3) 
         break;
     case 0xA4:
         // {ldy_zp, AM_ZP, "LDY"}
@@ -1369,7 +1386,9 @@ static _used[256];
         break;
     case 0xF4:
         // {set, AM_IMPL, "SET"}
-        OP_CALL_THROUGH_LOOKUP 
+        reg_p |= FL_T;
+        reg_pc++;
+        cycles += 2; 
         break;
     case 0xF5:
         // {sbc_zpx, AM_ZPX, "SBC"}

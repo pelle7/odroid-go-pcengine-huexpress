@@ -151,6 +151,7 @@ void videoTask_mode0(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_sc
 
 
 void videoTask_mode0(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0) }
+void videoTask_mode0_w224(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_w224) }
 void videoTask_mode0_w256(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_w256) }
 void videoTask_mode0_w320(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_w320) }
 void videoTask_mode0_w336(void *arg) { VID_TASK(ili9341_write_frame_pcengine_mode0_w336) }
@@ -282,7 +283,9 @@ NOINLINE void update_display_task(int width)
     }
     
     TaskFunction_t taskFunc;
-    if (width == 256)
+    if (width == 224)
+        taskFunc = &videoTask_mode0_w224;
+    else if (width == 256)
         taskFunc = &videoTask_mode0_w256;
     else if (width == 320)
         taskFunc = &videoTask_mode0_w320;
@@ -416,7 +419,7 @@ NOINLINE void app_init(void)
 #endif
 #endif
 
-    // void QuickSaveSetBuffer(void* data);
+    QuickSaveSetBuffer(my_special_alloc(false, 1, 512));
     
     odroid_audio_init(odroid_settings_AudioSink_get(), AUDIO_SAMPLE_RATE);
     
