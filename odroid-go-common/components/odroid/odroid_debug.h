@@ -4,7 +4,7 @@
 //#define ODROID_DEBUG_PERF_LOG_ALL
 
 #ifndef ODROID_DEBUG_PERF_USE
-#define ODROID_DEBUG_PERF_INIT()
+#define ODROID_DEBUG_PERF_INIT
 #define ODROID_DEBUG_PERF_START() 
 #define ODROID_DEBUG_PERF_START2(var_name)
 #define ODROID_DEBUG_PERF_INCR(call)
@@ -14,7 +14,7 @@
 
 #include "esp_system.h"
 
-#define ODROID_DEBUG_PERF_INIT() odroid_debug_perf_init();
+#define ODROID_DEBUG_PERF_INIT odroid_debug_perf_init();
 
 #define ODROID_DEBUG_PERF_START() \
     int odroid_debug_perf_start_time = xthal_get_ccount();
